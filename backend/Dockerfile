@@ -20,8 +20,7 @@ RUN chmod +x ./scripts/install-latex-packages.sh && \
 
 # Copy requirements and install Python dependencies
 COPY /backend/requirements.txt .
-RUN source /opt/venv/bin/activate && pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
 # Copy application code
 COPY . .
