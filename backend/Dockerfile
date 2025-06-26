@@ -19,7 +19,7 @@ RUN chmod +x ./scripts/install-latex-packages.sh && \
     ./scripts/install-latex-packages.sh
 
 # Copy requirements and install Python dependencies
-COPY requirements.txt .
+COPY /backend/requirements.txt .
 RUN source /opt/venv/bin/activate && pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt
 
@@ -38,4 +38,4 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
 # Start the application
-CMD ["/bin/bash", "-c", "source /opt/venv/bin/activate && python main.py"]
+CMD ["/bin/bash", "-c", "source /opt/venv/bin/activate && python backend/main.py"]
