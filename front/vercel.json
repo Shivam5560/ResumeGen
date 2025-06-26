@@ -6,9 +6,18 @@
       "use": "@vercel/next"
     }
   ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/"
+    }
+  ],
   "functions": {
     "src/app/api/generate-resume/route.ts": {
       "maxDuration": 30
+    },
+    "src/app/api/download-stats/route.ts": {
+      "maxDuration": 10
     }
   },
   "env": {
