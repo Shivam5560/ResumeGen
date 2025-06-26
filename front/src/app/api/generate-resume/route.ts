@@ -1,7 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { spawn } from 'child_process';
-import path from 'path';
-import fs from 'fs';
 
 export async function POST(request: NextRequest) {
   try {
@@ -42,7 +39,6 @@ export async function POST(request: NextRequest) {
       })),
       projects: (data.projects || []).map((proj: Record<string, any>) => ({
         title: proj.name || proj.title || '',
-        subtitle: proj.technologies || proj.tech || proj.subtitle || '',
         descriptions: Array.isArray(proj.description) ? proj.description :
                      proj.description ? [proj.description] :
                      Array.isArray(proj.descriptions) ? proj.descriptions : []
@@ -52,28 +48,24 @@ export async function POST(request: NextRequest) {
 
     console.log('Backend data transformed:', JSON.stringify(backendData, null, 2));
 
-    const action = format === 'pdf' ? 'generate_pdf' : 'generate_latex';
-    
-    const pythonScriptPath = path.join(process.cwd(), '..', 'app', 'api.py');
-    const result = await callPythonBackend(pythonScriptPath, action, backendData);
-    
-    if (!result.success) {
-      return NextResponse.json({ error: result.message }, { status: 500 });
+    // Make API call to FastAPI backend
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
+    const response = await fetch(`${backendUrl}/generate-resume`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(backendData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+      return NextResponse.json({ error: errorData.detail || 'Backend error' }, { status: response.status });
     }
 
-    if (format === 'pdf') {
-      const pdfPath = result.pdf_path;
-      if (!fs.existsSync(pdfPath)) {
-        return NextResponse.json({ error: 'PDF file not found' }, { status: 404 });
-      }
-      
-      const pdfBuffer = fs.readFileSync(pdfPath);
-      
-      try {
-        fs.unlinkSync(pdfPath);
-      } catch (cleanupError) {
-        console.warn('Error cleaning up PDF file:', cleanupError);
-      }
+    // If it's a PDF, return the file stream
+    if (format === 'pdf' || response.headers.get('content-type') === 'application/pdf') {
+      const pdfBuffer = await response.arrayBuffer();
       
       return new NextResponse(pdfBuffer, {
         headers: {
@@ -82,7 +74,9 @@ export async function POST(request: NextRequest) {
         },
       });
     } else {
-      return new NextResponse(result.content, {
+      // For other formats, return as text
+      const content = await response.text();
+      return new NextResponse(content, {
         headers: {
           'Content-Type': 'text/plain',
           'Content-Disposition': 'attachment; filename=resume.tex',
@@ -94,51 +88,4 @@ export async function POST(request: NextRequest) {
     console.error('Error in generate-resume API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
-
-function callPythonBackend(scriptPath: string, action: string, data: Record<string, any>): Promise<any> {
-  return new Promise((resolve, reject) => {
-    const pythonProcess = spawn('python3', [scriptPath, action, JSON.stringify(data)]);
-    
-    let stdout = '';
-    let stderr = '';
-    
-    pythonProcess.stdout.on('data', (data) => {
-      stdout += data.toString();
-    });
-    
-    pythonProcess.stderr.on('data', (data) => {
-      stderr += data.toString();
-    });
-    
-    pythonProcess.on('close', (code) => {
-      if (stderr) {
-        console.log('Python stderr:', stderr);
-      }
-      
-      if (code !== 0) {
-        reject(new Error(`Python process exited with code ${code}: ${stderr}`));
-        return;
-      }
-      
-      try {
-        const lines = stdout.trim().split('\n');
-        const jsonLine = lines.find(line => line.trim().startsWith('{') && line.trim().endsWith('}'));
-        
-        if (!jsonLine) {
-          reject(new Error(`No valid JSON found in Python output: ${stdout}`));
-          return;
-        }
-        
-        const result = JSON.parse(jsonLine);
-        resolve(result);
-      } catch (parseError) {
-        reject(new Error(`Failed to parse Python output: ${stdout}`));
-      }
-    });
-
-    pythonProcess.on('error', (error) => {
-      reject(new Error(`Failed to start Python process: ${error.message}`));
-    });
-  });
 }

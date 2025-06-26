@@ -9,7 +9,8 @@ nixPkgs = [
 
 [phases.install]
 cmds = [
-  ". /opt/venv/bin/activate"
+  "cd backend",
+  "pip install --upgrade pip",
   "pip install -r requirements.txt"
 ]
 
@@ -24,8 +25,9 @@ cmds = [
 ]
 
 [start]
-cmd = " . /opt/venv/bin/activate && python main.py"
+cmd = "cd backend && python app.py"
 
 [variables]
 PYTHONPATH = "/backend"
 RAILWAY_ENVIRONMENT = "production"
+PORT = "8000"
