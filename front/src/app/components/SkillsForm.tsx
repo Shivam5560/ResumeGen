@@ -11,20 +11,20 @@ import {
 } from "lucide-react";
 
 interface SkillsFormProps {
-  data: any;
-  onUpdate: (data: any) => void;
+  data: Record<string, any>;
+  onDataChange: (data: Record<string, any>) => void;
   onNext: () => void;
   onPrev: () => void;
 }
 
-export default function SkillsForm({ data, onUpdate, onNext, onPrev }: SkillsFormProps) {
+export default function SkillsForm({ data, onDataChange, onNext, onPrev }: SkillsFormProps) {
   const [newCategory, setNewCategory] = useState('');
 
   const addCategory = () => {
     if (newCategory.trim()) {
       const categoryKey = newCategory.toLowerCase().replace(/\s+/g, '_');
       const updatedSkills = { ...data, [categoryKey]: '' };
-      onUpdate(updatedSkills);
+      onDataChange(updatedSkills);
       setNewCategory('');
     }
   };
@@ -32,13 +32,13 @@ export default function SkillsForm({ data, onUpdate, onNext, onPrev }: SkillsFor
   const updateCategorySkills = (categoryKey: string, skillsString: string) => {
     const skillsToSend = typeof skillsString === 'string' ? skillsString : String(skillsString || '');
     const updatedSkills = { ...data, [categoryKey]: skillsToSend };
-    onUpdate(updatedSkills);
+    onDataChange(updatedSkills);
   };
 
   const removeCategory = (categoryKey: string) => {
     const updatedSkills = { ...data };
     delete updatedSkills[categoryKey];
-    onUpdate(updatedSkills);
+    onDataChange(updatedSkills);
   };
 
   const categoryDisplayName = (key: string) => {

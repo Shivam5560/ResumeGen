@@ -13,8 +13,6 @@ import {
   Sparkles,
   Shield,
   Zap,
-  ChevronDown,
-  Star,
   TrendingUp
 } from "lucide-react";
 
@@ -162,13 +160,48 @@ export default function Home() {
   };
 
   const updateFormData = useCallback((section: string, data: Record<string, any>) => {
-    console.log(`Updating ${section} with data:`, data);
     setFormData(prev => {
       const updated = { ...prev, [section]: data };
-      console.log(`Updated formData:`, updated);
       return updated;
     });
   }, []);
+
+  const validateStep = (stepData: Record<string, any>): boolean => {
+    return true;
+  };
+
+  const handleStepSubmit = (stepData: Record<string, any>) => {
+    if (validateStep(stepData)) {
+      updateStepData(steps[currentStep].id, stepData);
+      nextStep();
+    }
+  };
+
+  const updateStepData = (step: string, stepData: Record<string, any>) => {
+    setFormData(prev => ({
+      ...prev,
+      [step]: stepData
+    }));
+  };
+
+  const handleNext = (stepData: Record<string, any>) => {
+    if (validateStep(stepData)) {
+      updateStepData(steps[currentStep].id, stepData);
+      nextStep();
+    }
+  };
+
+  const handlePrev = (stepData: Record<string, any>) => {
+    updateStepData(steps[currentStep].id, stepData);
+    prevStep();
+  };
+
+  const getFormattedData = (): Record<string, any> => {
+    return {
+      ...formData,
+      formatted: true
+    };
+  };
 
   const nextStep = () => {
     if (currentStep < steps.length - 1 && !isAnimating) {
@@ -204,7 +237,7 @@ export default function Home() {
           <PersonalInfoForm 
             data={formData.personal} 
             onUpdate={(data: Record<string, any>) => updateFormData('personal', data)}
-            onNext={nextStep}
+            onNext={handleNext}
           />
         );
       case 'experience':
@@ -212,8 +245,8 @@ export default function Home() {
           <ExperienceForm 
             data={formData.experience} 
             onUpdate={(data: any[]) => updateFormData('experience', data)}
-            onNext={nextStep}
-            onPrev={prevStep}
+            onNext={handleNext}
+            onPrev={handlePrev}
           />
         );
       case 'education':
@@ -221,8 +254,8 @@ export default function Home() {
           <EducationForm 
             data={formData.education} 
             onUpdate={(data: any[]) => updateFormData('education', data)}
-            onNext={nextStep}
-            onPrev={prevStep}
+            onNext={handleNext}
+            onPrev={handlePrev}
           />
         );
       case 'projects':
@@ -230,8 +263,8 @@ export default function Home() {
           <ProjectsForm 
             data={formData.projects} 
             onUpdate={(data: any[]) => updateFormData('projects', data)}
-            onNext={nextStep}
-            onPrev={prevStep}
+            onNext={handleNext}
+            onPrev={handlePrev}
           />
         );
       case 'skills':
@@ -239,42 +272,17 @@ export default function Home() {
           <SkillsForm 
             data={formData.skills} 
             onUpdate={(data: Record<string, any>) => updateFormData('skills', data)}
-            onNext={nextStep}
-            onPrev={prevStep}
+            onNext={handleNext}
+            onPrev={handlePrev}
           />
         );
       case 'preview':
-        const transformedData = {
-          name: formData.personal?.name || '',
-          email: formData.personal?.email || '',
-          location: formData.personal?.location || '',
-          linkedin_url: formData.personal?.linkedin_url || '',
-          github_url: formData.personal?.github_url || '',
-          
-          experiences: Array.isArray(formData.experience) ? formData.experience.filter(exp => 
-            (exp.title && exp.title.trim()) || (exp.company && exp.company.trim())
-          ) : [],
-          
-          education: Array.isArray(formData.education) ? formData.education.filter(edu => 
-            (edu.institution && edu.institution.trim()) || (edu.degree && edu.degree.trim())
-          ) : [],
-          
-          projects: Array.isArray(formData.projects) ? formData.projects
-            .filter(project => project.title && project.title.trim())
-            .map((project: any) => ({
-              title: project.title || '',
-              descriptions: Array.isArray(project.description) 
-                ? project.description.filter((desc: string) => desc && desc.trim())
-                : []
-            })) : [],
-          
-          skills: formData.skills || {}
-        };
+        const transformedData = getFormattedData();
         
         return (
           <PreviewStep 
             data={formData} 
-            onPrev={prevStep}
+            onPrev={handlePrev}
             transformedData={transformedData}
           />
         );

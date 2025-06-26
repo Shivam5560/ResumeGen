@@ -396,7 +396,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCreateResume }) => {
                 <p className="about-description">
                   ResumeGen is an AI-powered resume builder designed to help professionals create 
                   compelling, ATS-optimized resumes. Our platform combines modern technology with 
-                  best practices in resume writing to help you stand out in today's competitive job market.
+                  best practices in resume writing to help you stand out in today&apos;s competitive job market.
                 </p>
                 
                 <div className="about-features">
@@ -477,7 +477,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCreateResume }) => {
         <section className="cta-section">
           <div className="cta-content">
             <h2>Ready to Create Your Professional Resume?</h2>
-            <p>Join professionals who've improved their job applications with ResumeGen</p>
+            <p>Join professionals who&apos;ve improved their job applications with ResumeGen</p>
             <button 
               className="cta-button primary large"
               onClick={onCreateResume}

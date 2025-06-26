@@ -5,18 +5,26 @@ import fs from 'fs';
 
 export async function POST(request: NextRequest) {
   try {
-    const { data, format } = await request.json();
+    const { data, format }: { data: Record<string, any>; format: string } = await request.json();
     
     console.log('Frontend data received:', JSON.stringify(data, null, 2));
     
-    // Transform frontend data structure to match backend expectations
+    const validateData = (data: Record<string, any>): { isValid: boolean; error?: string } => {
+      return { isValid: true };
+    };
+
+    const validationResult = validateData(data);
+    if (!validationResult.isValid) {
+      return NextResponse.json({ error: validationResult.error || 'Invalid data' }, { status: 400 });
+    }
+
     const backendData = {
       name: data.personal?.name || data.name || '',
       email: data.personal?.email || data.email || '',
       location: data.personal?.location || data.location || '',
       linkedin_url: data.personal?.linkedin || data.linkedin_url || data.linkedin || '',
       github_url: data.personal?.github || data.github_url || data.github || '',
-      experiences: (data.experience || data.experiences || []).map((exp: any) => ({
+      experiences: (data.experience || data.experiences || []).map((exp: Record<string, any>) => ({
         title: exp.title || exp.position || '',
         company: exp.company || exp.organization || '',
         location: exp.location || '',
@@ -26,13 +34,13 @@ export async function POST(request: NextRequest) {
                          Array.isArray(exp.description) ? exp.description : 
                          exp.description ? [exp.description] : []
       })),
-      education: (data.education || []).map((edu: any) => ({
+      education: (data.education || []).map((edu: Record<string, any>) => ({
         institution: edu.school || edu.institution || edu.university || '',
         degree: edu.degree || edu.program || '',
         graduation_date: edu.graduationDate || edu.graduation_date || edu.date || '',
         gpa: edu.gpa || edu.cgpa || ''
       })),
-      projects: (data.projects || []).map((proj: any) => ({
+      projects: (data.projects || []).map((proj: Record<string, any>) => ({
         title: proj.name || proj.title || '',
         subtitle: proj.technologies || proj.tech || proj.subtitle || '',
         descriptions: Array.isArray(proj.description) ? proj.description :
@@ -44,10 +52,8 @@ export async function POST(request: NextRequest) {
 
     console.log('Backend data transformed:', JSON.stringify(backendData, null, 2));
 
-    // Determine action based on format
     const action = format === 'pdf' ? 'generate_pdf' : 'generate_latex';
     
-    // Call Python backend
     const pythonScriptPath = path.join(process.cwd(), '..', 'app', 'api.py');
     const result = await callPythonBackend(pythonScriptPath, action, backendData);
     
@@ -56,7 +62,6 @@ export async function POST(request: NextRequest) {
     }
 
     if (format === 'pdf') {
-      // Serve PDF file
       const pdfPath = result.pdf_path;
       if (!fs.existsSync(pdfPath)) {
         return NextResponse.json({ error: 'PDF file not found' }, { status: 404 });
@@ -64,7 +69,6 @@ export async function POST(request: NextRequest) {
       
       const pdfBuffer = fs.readFileSync(pdfPath);
       
-      // Clean up only the PDF file (other temp files are managed by Python's tempfile)
       try {
         fs.unlinkSync(pdfPath);
       } catch (cleanupError) {
@@ -78,7 +82,6 @@ export async function POST(request: NextRequest) {
         },
       });
     } else {
-      // Serve LaTeX content
       return new NextResponse(result.content, {
         headers: {
           'Content-Type': 'text/plain',
@@ -93,7 +96,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function callPythonBackend(scriptPath: string, action: string, data: any): Promise<any> {
+function callPythonBackend(scriptPath: string, action: string, data: Record<string, any>): Promise<any> {
   return new Promise((resolve, reject) => {
     const pythonProcess = spawn('python3', [scriptPath, action, JSON.stringify(data)]);
     
@@ -109,7 +112,6 @@ function callPythonBackend(scriptPath: string, action: string, data: any): Promi
     });
     
     pythonProcess.on('close', (code) => {
-      // Log stderr for debugging
       if (stderr) {
         console.log('Python stderr:', stderr);
       }
@@ -120,7 +122,6 @@ function callPythonBackend(scriptPath: string, action: string, data: any): Promi
       }
       
       try {
-        // Clean stdout by removing any non-JSON lines
         const lines = stdout.trim().split('\n');
         const jsonLine = lines.find(line => line.trim().startsWith('{') && line.trim().endsWith('}'));
         

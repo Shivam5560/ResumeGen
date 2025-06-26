@@ -42,10 +42,24 @@ export default function PreviewStep({ data, onPrev }: PreviewStepProps) {
         location: data.personal?.location || '', 
         linkedin_url: data.personal?.linkedin_url || '',
         github_url: data.personal?.github_url || '',
-        // Keep arrays as they are
-        experiences: data.experience || [],
-        education: data.education || [],
-        projects: data.projects || [],
+        // Add proper types for filter callbacks
+        experiences: Array.isArray(data.experience) ? data.experience.filter((exp: any) => 
+          (exp.title && exp.title.trim()) || (exp.company && exp.company.trim())
+        ) : [],
+        
+        education: Array.isArray(data.education) ? data.education.filter((edu: any) => 
+          (edu.institution && edu.institution.trim()) || (edu.degree && edu.degree.trim())
+        ) : [],
+        
+        projects: Array.isArray(data.projects) ? data.projects
+          .filter((project: any) => project.title && project.title.trim())
+          .map((project: any) => ({
+            title: project.title || '',
+            descriptions: Array.isArray(project.description) 
+              ? project.description.filter((desc: string) => desc && desc.trim())
+              : []
+          })) : [],
+        
         skills: data.skills || {}
       };
 
@@ -232,7 +246,7 @@ export default function PreviewStep({ data, onPrev }: PreviewStepProps) {
                             <p className="text-lg text-gray-700 mb-2">{project.subtitle}</p>
                           )}
                           <ul className="list-disc list-inside space-y-1 text-gray-700">
-                            {project.descriptions?.map((desc: string, idx: number) => (
+                            {(project.description || project.descriptions || []).map((desc: string, idx: number) => (
                               <li key={idx}>{desc}</li>
                             ))}
                           </ul>

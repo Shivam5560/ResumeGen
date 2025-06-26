@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 // In a real application, you would use a database
 // For now, we'll use a simple file-based storage or environment variable

@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect, useCallback, useRef } from "react";
+import { useRef } from "react";
 import { motion } from "framer-motion";
 
 interface PersonalInfoFormProps {
   data: Record<string, any>;
-  onUpdate: (data: Record<string, any>) => void;
+  onDataChange: (data: Record<string, any>) => void;
   onNext: () => void;
 }
 
-export default function PersonalInfoForm({ data, onUpdate, onNext }: PersonalInfoFormProps) {
+export default function PersonalInfoForm({ data, onDataChange, onNext }: PersonalInfoFormProps) {
   const previousDataRef = useRef<string>('');
   
   const handleInputChange = (field: string, value: string) => {
@@ -18,7 +18,7 @@ export default function PersonalInfoForm({ data, onUpdate, onNext }: PersonalInf
     
     if (currentDataString !== previousDataRef.current) {
       previousDataRef.current = currentDataString;
-      onUpdate(updatedData);
+      onDataChange(updatedData);
     }
   };
 

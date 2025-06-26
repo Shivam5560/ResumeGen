@@ -5,11 +5,32 @@ import { Mail, MapPin, Github, Linkedin, Calendar, Building2, GraduationCap, Fol
 
 interface LivePreviewProps {
   data: {
-    personal?: any;
-    experience?: any[];
-    education?: any[];
-    projects?: any[];
-    skills?: any;
+    personal?: {
+      name?: string;
+      email?: string;
+      location?: string;
+      linkedin_url?: string;
+      github_url?: string;
+      summary?: string;
+    };
+    experience?: {
+      title?: string;
+      company?: string;
+      location?: string;
+      dates?: string;
+      responsibilities?: string[];
+    }[];
+    education?: {
+      institution?: string;
+      degree?: string;
+      gpa?: string;
+      graduation_date?: string;
+    }[];
+    projects?: {
+      title?: string;
+      description?: string[];
+    }[];
+    skills?: Record<string, string>;
   };
 }
 
@@ -91,12 +112,12 @@ const LivePreviewComponent: React.FC<LivePreviewProps> = ({ data }) => {
                   </div>
                   {exp.responsibilities && exp.responsibilities.length > 0 && (
                     <ul className="list-disc list-inside space-y-0.5 text-xs text-gray-700 ml-2">
-                      {exp.responsibilities.filter(resp => resp.trim()).slice(0, 3).map((resp, respIndex) => (
+                      {exp.responsibilities.filter((resp: string) => resp.trim()).slice(0, 3).map((resp: string, respIndex: number) => (
                         <li key={respIndex} className="leading-tight">{resp}</li>
                       ))}
-                      {exp.responsibilities.filter(resp => resp.trim()).length > 3 && (
+                      {exp.responsibilities.filter((resp: string) => resp.trim()).length > 3 && (
                         <li className="text-gray-500 italic text-xs">
-                          +{exp.responsibilities.filter(resp => resp.trim()).length - 3} more responsibilities...
+                          +{exp.responsibilities.filter((resp: string) => resp.trim()).length - 3} more responsibilities...
                         </li>
                       )}
                     </ul>
@@ -150,12 +171,12 @@ const LivePreviewComponent: React.FC<LivePreviewProps> = ({ data }) => {
                   </h3>
                   {project.description && project.description.length > 0 && (
                     <ul className="list-disc list-inside space-y-0.5 text-xs text-gray-700 ml-2">
-                      {project.description.filter(desc => desc.trim()).slice(0, 3).map((desc, descIndex) => (
+                      {project.description.filter((desc: string) => desc.trim()).slice(0, 3).map((desc: string, descIndex: number) => (
                         <li key={descIndex} className="leading-tight">{desc}</li>
                       ))}
-                      {project.description.filter(desc => desc.trim()).length > 3 && (
+                      {project.description.filter((desc: string) => desc.trim()).length > 3 && (
                         <li className="text-gray-500 italic text-xs">
-                          +{project.description.filter(desc => desc.trim()).length - 3} more details...
+                          +{project.description.filter((desc: string) => desc.trim()).length - 3} more details...
                         </li>
                       )}
                     </ul>

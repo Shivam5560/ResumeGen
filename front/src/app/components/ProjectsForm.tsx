@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useCallback, useRef } from "react";
-import { useForm, useFieldArray, Control } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
@@ -10,19 +10,13 @@ import {
   ArrowRight,
   Plus, 
   Trash2, 
-  FolderOpen, 
-  Code, 
-  ExternalLink
+  FolderOpen
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 
 const projectItemSchema = z.object({
   title: z.string().min(2, "Title is required"),
   technologies: z.string().optional(),
-  description: z.array(z.string().min(10, "Description must be at least 10 characters")).min(1, "At least one description is required") // Keep as description for form
+  description: z.array(z.string().min(10, "Description must be at least 10 characters")).min(1, "At least one description is required")
 });
 
 const projectsSchema = z.object({
@@ -44,7 +38,6 @@ export default function ProjectsForm({ data, onUpdate, onNext, onPrev }: Project
   const {
     register,
     control,
-    handleSubmit,
     watch,
     setValue,
     formState: { errors, isValid }
@@ -67,12 +60,11 @@ export default function ProjectsForm({ data, onUpdate, onNext, onPrev }: Project
 
   const watchedValues = watch();
 
-  // Use useCallback to prevent infinite loops
   const updateData = useCallback(() => {
     const currentDataString = JSON.stringify(watchedValues.projects);
     if (currentDataString !== previousDataRef.current) {
       previousDataRef.current = currentDataString;
-      onUpdate(watchedValues.projects); // Send projects array directly
+      onUpdate(watchedValues.projects);
     }
   }, [watchedValues.projects, onUpdate]);
 
@@ -80,18 +72,16 @@ export default function ProjectsForm({ data, onUpdate, onNext, onPrev }: Project
     updateData();
   }, [updateData]);
 
-  const onSubmit = (formData: ProjectsForm) => {
-    onUpdate(formData.projects); // Send projects array directly
+  const handleNext = () => {
+    onUpdate(watchedValues.projects);
     onNext();
   };
 
-  // Helper function to add description
   const addDescription = (projectIndex: number) => {
     const currentDescriptions = watchedValues.projects[projectIndex]?.description || [""];
     setValue(`projects.${projectIndex}.description`, [...currentDescriptions, ""]);
   };
 
-  // Helper function to remove description
   const removeDescription = (projectIndex: number, descriptionIndex: number) => {
     const currentDescriptions = watchedValues.projects[projectIndex]?.description || [""];
     if (currentDescriptions.length > 1) {
@@ -215,7 +205,8 @@ export default function ProjectsForm({ data, onUpdate, onNext, onPrev }: Project
         </button>
         
         <button
-          type="submit"
+          type="button"
+          onClick={handleNext}
           disabled={!isValid}
           className={`px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl transition-all duration-300 flex items-center gap-2 ${
             isValid 
