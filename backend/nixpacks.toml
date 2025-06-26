@@ -1,11 +1,31 @@
 [phases.setup]
-nixPkgs = ["python310", "texlive.combined.scheme-medium"]
+nixPkgs = [
+  "python310",
+  "curl",
+  "bash",
+  "texlive.combined.scheme-basic",
+  "ghostscript"
+]
 
 [phases.install]
-cmds = ["pip install -r requirements.txt"]
+cmds = [
+  "pip install --upgrade pip",
+  "pip install -r requirements.txt"
+]
 
 [phases.build]
-cmds = ["echo 'Build complete'"]
+cmds = [
+  "echo 'Testing minimal LaTeX installation...'",
+  "pdflatex --version",
+  "which pdflatex",
+  "echo 'Installing only required LaTeX packages...'",
+  "tlmgr install geometry enumitem hyperref xcolor titlesec fancyhdr",
+  "echo 'Build complete'"
+]
 
 [start]
-cmd = "uvicorn main:app --host 0.0.0.0 --port $PORT"
+cmd = " . /opt/venv/bin/activate && python app.py"
+
+[variables]
+PYTHONPATH = "/backend"
+RAILWAY_ENVIRONMENT = "production"

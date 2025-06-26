@@ -54,7 +54,7 @@ class LatexResumeGenerator:
         return escaped_text
     
     def _get_template(self) -> str:
-        """Returns the LaTeX template matching sample.tex exactly"""
+        """Returns minimal LaTeX template using only BasicTeX packages"""
         return r"""
 %-------------------------
 % Resume in Latex
@@ -67,15 +67,11 @@ class LatexResumeGenerator:
 \usepackage{latexsym}
 \usepackage[margin=1in]{geometry}
 \usepackage{titlesec}
-\usepackage{marvosym}
 \usepackage[usenames,dvipsnames]{color}
 \usepackage{verbatim}
 \usepackage{enumitem}
 \usepackage[hidelinks]{hyperref}
 \usepackage{fancyhdr}
-\usepackage[english]{babel}
-\input{glyphtounicode}
-
 
 \pagestyle{fancy}
 \fancyhf{} % clear all header and footer fields
@@ -101,9 +97,6 @@ class LatexResumeGenerator:
   \vspace{-4pt}\scshape\raggedright\large
 }{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
 
-% Ensure that generate pdf is machine readable/ATS parsable
-\pdfgentounicode=1
-
 %-------------------------
 % Custom commands
 \newcommand{\resumeItem}[1]{
@@ -127,14 +120,10 @@ class LatexResumeGenerator:
     \end{tabular*}\vspace{-5pt}
 }
 
-
 \newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.15in, label={}]}
 \newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
 \newcommand{\resumeItemListStart}{\begin{itemize}}
 \newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
-
-
-
 
 %-------------------------------------------
 %%%%%%  RESUME STARTS HERE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -147,7 +136,6 @@ class LatexResumeGenerator:
      {{CONTACT}}
 \end{center}
 
-
 %-----------EXPERIENCE-----------
 \section{Professional Experience}
   \resumeSubHeadingListStart
@@ -159,19 +147,17 @@ class LatexResumeGenerator:
   \resumeSubHeadingListStart
 {{EDUCATION}}
   \resumeSubHeadingListEnd
+
 %-----------PROJECTS-----------
 \section{University Projects}
   \resumeSubHeadingListStart
 {{PROJECTS}}
   \resumeSubHeadingListEnd
 
-     \section{Additional}
+\section{Additional}
 \begin{itemize}
 {{SKILLS}}
 \end{itemize}
-
-
-
 
 \end{document}
 """
