@@ -3,13 +3,13 @@ FROM python:3.10-slim
 
 
 # Set working directory
+RUN echo "Current working directory: $(pwd)"
 WORKDIR /backend
 
 # Run LaTeX installation script
 ENV RAILWAY_ENVIRONMENT=docker
 RUN echo "Current working directory: $(pwd)"
-RUN chmod +x /scripts/install-latex-packages.sh && \
-    /scripts/install-latex-packages.sh
+RUN chmod +x /scripts/install-latex-packages.sh
 
 # Copy requirements and install Python dependencies
 RUN pip install -r requirements.txt
