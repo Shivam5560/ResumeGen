@@ -3,10 +3,10 @@ FROM python:3.10-slim
 # Run LaTeX installation script
 ENV RAILWAY_ENVIRONMENT=docker
 RUN echo "Current working directory: $(pwd)"
-# RUN backend/scripts/install-latex-packages.sh
+# RUN scripts/install-latex-packages.sh
 
 # Copy requirements and install Python dependencies
-RUN pip install -r backend/requirements.txt
+RUN pip install -r requirements.txt
 
 # Expose port
 EXPOSE 8000
