@@ -23,33 +23,54 @@ import { Button } from "@/components/ui/button";
 interface PreviewStepProps {
   data: any;
   onPrev: () => void;
+  transformedData?: any; // Add this prop for transformed data
 }
 
-export default function PreviewStep({ data, onPrev }: PreviewStepProps) {
+export default function PreviewStep({ data, onPrev, transformedData }: PreviewStepProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [downloadFormat, setDownloadFormat] = useState<'pdf' | 'latex'>('pdf');
 
   const handleDownload = async (format: 'pdf' | 'latex') => {
-    setIsGenerating(true);
-    setDownloadFormat(format);
-    
     try {
-      // Flatten the data structure to match our API expectations
-      const flattenedData = {
-        // Personal info - flatten the nested personal object
+      setIsGenerating(true);
+      
+      // Debug: Log the raw data first
+      console.log('Raw form data:', data);
+      
+      // Use transformedData if provided, otherwise transform data here
+      const backendData = transformedData || {
+        // Personal info - access nested properties correctly
         name: data.personal?.name || '',
         email: data.personal?.email || '',
-        location: data.personal?.location || '', 
+        location: data.personal?.location || '',
         linkedin_url: data.personal?.linkedin_url || '',
         github_url: data.personal?.github_url || '',
-        // Keep arrays as they are
-        experiences: data.experience || [],
-        education: data.education || [],
-        projects: data.projects || [],
+        
+        // Experience - map correctly and filter out empty ones
+        experiences: Array.isArray(data.experience) ? data.experience.filter(exp => 
+          (exp.title && exp.title.trim()) || (exp.company && exp.company.trim())
+        ) : [],
+        
+        // Education - ensure proper structure and filter out empty ones
+        education: Array.isArray(data.education) ? data.education.filter(edu => 
+          (edu.institution && edu.institution.trim()) || (edu.degree && edu.degree.trim())
+        ) : [],
+        
+        // Projects - handle description array properly and filter out empty ones
+        projects: Array.isArray(data.projects) ? data.projects
+          .filter(project => project.title && project.title.trim()) // Only include projects with titles
+          .map((project: any) => ({
+            title: project.title || '',
+            descriptions: Array.isArray(project.description) 
+              ? project.description.filter((desc: string) => desc && desc.trim()) // Filter out empty descriptions
+              : []
+          })) : [],
+        
+        // Skills - pass through as-is since it's already correct
         skills: data.skills || {}
       };
 
-      console.log('Sending flattened data:', flattenedData);
+      console.log('Transformed data for backend:', JSON.stringify(backendData, null, 2));
 
       const response = await fetch('/api/generate-resume', {
         method: 'POST',
@@ -57,14 +78,14 @@ export default function PreviewStep({ data, onPrev }: PreviewStepProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          data: flattenedData,
+          data: backendData,
           format: format
         }),
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to generate resume: ${response.status} ${errorText}`);
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || `Failed to generate resume: ${response.status}`);
       }
 
       // Get the blob data
@@ -82,7 +103,7 @@ export default function PreviewStep({ data, onPrev }: PreviewStepProps) {
       
     } catch (error) {
       console.error('Error generating resume:', error);
-      alert('Failed to generate resume. Please try again.');
+      alert(`Failed to generate resume: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsGenerating(false);
     }
@@ -228,11 +249,12 @@ export default function PreviewStep({ data, onPrev }: PreviewStepProps) {
                       {data.projects.map((project: any, index: number) => (
                         <div key={index} className="border-l-4 border-gray-300 pl-6">
                           <h3 className="text-xl font-semibold text-gray-900">{project.title}</h3>
-                          {project.subtitle && (
-                            <p className="text-lg text-gray-700 mb-2">{project.subtitle}</p>
+                          {project.technologies && (
+                            <p className="text-lg text-gray-700 mb-2 italic">Technologies: {project.technologies}</p>
                           )}
                           <ul className="list-disc list-inside space-y-1 text-gray-700">
-                            {project.descriptions?.map((desc: string, idx: number) => (
+                            {/* Handle both description (singular from form) and descriptions (plural from backend) */}
+                            {(project.description || project.descriptions || []).map((desc: string, idx: number) => (
                               <li key={idx}>{desc}</li>
                             ))}
                           </ul>

@@ -1,0 +1,168 @@
+%-------------------------
+% Resume in Latex
+% Author : Shivam Sourav (adapted from Jake Gutierrez's template)
+% License : MIT
+%------------------------
+
+\documentclass[letterpaper,11pt]{article}
+
+\usepackage{latexsym}
+\usepackage[margin=1in]{geometry}
+\usepackage{titlesec}
+\usepackage{marvosym}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\input{glyphtounicode}
+
+
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Adjust margins
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1.2in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1.5in}
+
+\urlstyle{same}
+
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+% Sections formatting
+\titleformat{\section}{
+  \vspace{-4pt}\scshape\raggedright\large
+}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+
+% Ensure that generate pdf is machine readable/ATS parsable
+\pdfgentounicode=1
+
+%-------------------------
+% Custom commands
+\newcommand{\resumeItem}[1]{
+  \item \small{
+    {#1 \vspace{-2pt}}
+  }
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-2pt}\item
+    \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & #2 \\
+      \textit{\small#3} & \textit{\small#4} \\
+    \end{tabular*}\vspace{-5pt}
+}
+
+\newcommand{\resumeProjectHeading}[2]{
+    \vspace{-2pt}\item
+    \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \small#1 & #2 \\
+    \end{tabular*}\vspace{-5pt}
+}
+
+
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.15in, label={}]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+
+
+
+
+%-------------------------------------------
+%%%%%%  RESUME STARTS HERE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+%----------HEADING----------
+\begin{center}
+    \textbf{\Huge \scshape Shivam Sourav} \\ \vspace{1pt}
+     \href{mailto:shivamsourav2003@gmail.com}{\underline{shivamsourav2003@gmail.com}} $|$ Banka, Bihar, India \\ \href{https://www.linkedin.com/in/shivam-sourav-b889aa204/}{\underline{linkedin.com/in/shivam-sourav-b889aa204/}} $|$
+    \href{https://github.com/Shivam5560}{\underline{github.com/Shivam5560}}
+\end{center}
+
+
+%-----------EXPERIENCE-----------
+\section{Professional Experience}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+      {Associate Software Engineer}{Aug 2024 -- Present}
+      {Nomura Research Institute and Financial Technology}{On site - Kolkata}
+      \resumeItemListStart
+    \resumeItem{Automated release deployments via \textbf{Jenkins CI/CD}, reducing manual effort by \textbf{70\%} with pipelines.}\resumeItem{Designed \textbf{Python}-based data generation utility using \textbf{YAML} schemas and configurable column definitions, supporting \textbf{OracleDB}, and enabling \textbf{60\% faster} high-volume data creation with advanced formatting and mapping logic}\resumeItem{Implemented \textbf{LLM-based ATS} with \textbf{LlamaIndex}, \textbf{Cohere}, and \textbf{Pinecone}, enabling \textbf{90\%+ accurate} resume matching, real-time scoring, and \textbf{AI-driven recommendations} via \textbf{Next.js} and \textbf{Flask}}
+
+\resumeItemListEnd
+    \resumeSubheading
+  {Data Scientist}{Nov 2023 -- Jun 2024}
+  {Omdena}{Remote}
+\resumeItemListStart
+  \resumeItem{Designed \textbf{time-series models} using \textbf{XGBoost} for COVID-19 forecasting and \textbf{LSTM} for flood prediction, achieving \textbf{92–95\% accuracy} via feature engineering and \textbf{GridSearchCV} tuning}
+
+  \resumeItem{Spearheaded a cross-functional team of 10 in \textbf{data preprocessing} and \textbf{model deployment, streamlining} processes that enhanced collaboration among 40 colleagues by improving workflow efficiency by 50\% through targeted training sessions on \textbf{Pandas} and \textbf{Scikit-learn usage}.}
+\resumeItemListEnd
+  \resumeSubHeadingListEnd
+
+%-----------EDUCATION-----------
+\section{Education}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+      {Sikkim Manipal Institute of Technology}{May 2025}
+      {B.Tech in Artificial Intelligence and Data Science}{CGPA: 9.7}
+  \resumeSubHeadingListEnd
+%-----------PROJECTS-----------
+\section{University Projects}
+  \resumeSubHeadingListStart
+      \resumeProjectHeading
+    {{\textbf{Nepali LLM - Tuned  Language Model}}}
+
+    \resumeItemListStart
+        \resumeItem{Trained a \textbf{SentencePiece tokenizer} on Nepali corpus, reducing token count by \textbf{80\%} and fine-tuned \textbf{Gemma-2B} via \textbf{LoRA}, achieving \textbf{25\% higher accuracy} on NLU tasks}
+        \resumeItem{Deployed \textbf{Nepali chatbot} with \textbf{Streamlit}, increasing user engagement by \textbf{30\%}}
+    \resumeItemListEnd
+
+      \resumeProjectHeading
+      {{\textbf{Vitalis - Clinical AI Dashboard}}}
+
+      \resumeItemListStart
+        \resumeItem{Engineered \textbf{Flask API} implementing \textbf{clinical algorithms} (ASCVD/CKD-EPI) processing \textbf{50+ biomarkers/sec}, achieving \textbf{92\% concordance} with clinician judgments through \textbf{NumPy-optimized} calculations}
+\resumeItem{Deployed \textbf{Qwen2.5 3B} via \textbf{Ollama} (4-bit GGUF) to produce \textbf{JSON} outputs including \textbf{NLP summaries} (95\% Score), \textbf{trend alerts}, and \textbf{clinical recommendations}, with optimal inference speed.}
+\resumeItem{Architected \textbf{React} dashboard with \textbf{Chart.js/D3.js} visualizations (risk heatmaps, trend graphs) connected to \textbf{Flask API}, displaying real-time clinical data with 200ms refresh intervals}
+
+      \resumeItemListEnd
+
+      \resumeProjectHeading
+      {{\textbf{Brainy-Buddy - RAG Document Chatbot}}}
+      
+      \resumeItemListStart
+        \resumeItem{Formulated a \textbf{RAG-based Q\&A system} using \textbf{LlamaIndex}, \textbf{Cohere embeddings}, and \textbf{Pinecone}, with \textbf{Groq-powered LLM inference}, achieving \textbf{85\% top-3 retrieval precision} and real-time semantic justifications via \textbf{Streamlit}}
+
+      \resumeItemListEnd
+
+      \resumeProjectHeading
+      {{\textbf{News Headline Generator}}}{}
+      \resumeItemListStart
+        \resumeItem{Devised fine-tuning for \textbf{Mistral-7B} on news summarization using \textbf{QLoRA (rank=64)} and \textbf{Unsloth}, achieving \textbf{80\% headline relevance} with \textbf{50\% faster training}}
+      \resumeItemListEnd
+  \resumeSubHeadingListEnd
+
+     \section{Additional}
+\begin{itemize}
+  \item \textbf{Languages \& Tools:} Python, Java, R, SQL, Git, GitHub, Jenkins, Puppet, Apache Tomcat, ActiveMQ
+  \item \textbf{Frameworks \& Libraries:} TensorFlow, PyTorch, Keras, Scikit-Learn, XGBoost, Prophet, Hugging Face, NLTK, LlamaIndex, Flask, Streamlit, Gradio
+  \item \textbf{Data \& Visualization:} Pandas, NumPy, MongoDB, OracleDB, Power BI, Tableau, Looker, Plotly, Matplotlib, Seaborn, Chart.js
+  \item \textbf{Concepts \& Soft Skills:} Machine Learning, Deep Learning, NLP, Computer Vision, Time Series, Statistics, Big Data, Team Collaboration, Leadership
+\end{itemize}
+
+
+
+
+\end{document}

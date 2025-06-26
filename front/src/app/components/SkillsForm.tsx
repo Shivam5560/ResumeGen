@@ -1,28 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { motion } from "framer-motion";
 import { 
   ArrowRight, 
   ArrowLeft, 
   Plus, 
   Trash2, 
-  Award,
-  Star
+  Award
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-
-const skillsSchema = z.object({
-  skills: z.record(z.string()).optional()
-});
-
-type SkillsForm = z.infer<typeof skillsSchema>;
 
 interface SkillsFormProps {
   data: any;
@@ -34,21 +20,6 @@ interface SkillsFormProps {
 export default function SkillsForm({ data, onUpdate, onNext, onPrev }: SkillsFormProps) {
   const [newCategory, setNewCategory] = useState('');
 
-  const {
-    handleSubmit,
-    formState: { isValid }
-  } = useForm<SkillsForm>({
-    resolver: zodResolver(skillsSchema),
-    defaultValues: {
-      skills: data || {}
-    },
-    mode: "onChange"
-  });
-
-  const onSubmit = () => {
-    onNext();
-  };
-
   const addCategory = () => {
     if (newCategory.trim()) {
       const categoryKey = newCategory.toLowerCase().replace(/\s+/g, '_');
@@ -59,7 +30,8 @@ export default function SkillsForm({ data, onUpdate, onNext, onPrev }: SkillsFor
   };
 
   const updateCategorySkills = (categoryKey: string, skillsString: string) => {
-    const updatedSkills = { ...data, [categoryKey]: skillsString };
+    const skillsToSend = typeof skillsString === 'string' ? skillsString : String(skillsString || '');
+    const updatedSkills = { ...data, [categoryKey]: skillsToSend };
     onUpdate(updatedSkills);
   };
 
@@ -74,133 +46,94 @@ export default function SkillsForm({ data, onUpdate, onNext, onPrev }: SkillsFor
   };
 
   const skillsData = data || {};
+  const categories = Object.keys(skillsData);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-      className="w-full"
+      transition={{ duration: 0.5 }}
+      className="bg-white/90 backdrop-blur-lg rounded-3xl border border-gray-200/50 shadow-xl p-8"
     >
-      <div className="bg-black/95 backdrop-blur-sm rounded-3xl shadow-2xl border border-gray-800 overflow-hidden">
-        {/* Header Section */}
-        <div className="bg-gradient-to-r from-gray-900 to-black px-8 py-8 border-b border-gray-800">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-gray-700 to-gray-900 rounded-2xl flex items-center justify-center border border-gray-700">
-              <Award className="w-8 h-8 text-gray-300" />
+      <div className="space-y-6">
+        {/* Display message if no categories */}
+        {categories.length === 0 && (
+          <div className="text-center py-8">
+            <Award className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500">No skill categories added yet. Start by adding your first category below.</p>
+          </div>
+        )}
+
+        {/* Custom Categories */}
+        {categories.map((categoryKey) => (
+          <motion.div
+            key={categoryKey}
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="space-y-2"
+          >
+            <div className="flex items-center justify-between">
+              <label className="block text-sm font-semibold text-gray-700">
+                {categoryDisplayName(categoryKey)}
+              </label>
+              <button
+                onClick={() => removeCategory(categoryKey)}
+                className="px-3 py-1 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600 transition-colors flex items-center gap-1"
+              >
+                <Trash2 className="w-3 h-3" />
+                Remove
+              </button>
             </div>
-            <div>
-              <h2 className="text-3xl font-bold text-white">Skills</h2>
-              <p className="text-gray-400 text-lg">Highlight your expertise</p>
-            </div>
+            <input
+              type="text"
+              value={skillsData[categoryKey] || ''}
+              onChange={(e) => updateCategorySkills(categoryKey, e.target.value)}
+              className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 backdrop-blur-sm"
+              placeholder="Enter skills separated by commas..."
+            />
+          </motion.div>
+        ))}
+
+        {/* Add Custom Category */}
+        <div className={`${categories.length > 0 ? 'border-t border-gray-200/50 pt-6' : ''}`}>
+          <div className="flex gap-3">
+            <input
+              type="text"
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && addCategory()}
+              className="flex-1 px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 backdrop-blur-sm"
+              placeholder="Add skill category (e.g., Programming Languages, Frameworks, Tools)..."
+            />
+            <button
+              onClick={addCategory}
+              disabled={!newCategory.trim()}
+              className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-xl font-semibold hover:from-indigo-600 hover:to-purple-600 transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg hover:scale-105"
+            >
+              <Plus className="w-4 h-4" />
+              Add Category
+            </button>
           </div>
         </div>
+      </div>
 
-        {/* Form Content */}
-        <div className="p-8 lg:p-12">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-12">
-            
-            {/* Add New Category */}
-            <div className="bg-gray-900/30 border border-gray-700 rounded-3xl p-8">
-              <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                <Plus className="w-7 h-7 text-gray-400" />
-                Add New Skill Category
-              </h3>
-              <div className="flex gap-4">
-                <Input
-                  value={newCategory}
-                  onChange={(e) => setNewCategory(e.target.value)}
-                  placeholder="e.g., Programming Languages, Tools, Frameworks"
-                  className="flex-1 h-16 text-xl bg-gray-900/50 border-2 border-gray-700 rounded-2xl focus:border-gray-500 focus:ring-0 transition-all duration-300 text-white placeholder:text-gray-500 hover:border-gray-600"
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      addCategory();
-                    }
-                  }}
-                />
-                <Button
-                  type="button"
-                  onClick={addCategory}
-                  disabled={!newCategory.trim()}
-                  className="bg-gray-700 hover:bg-gray-600 text-white border border-gray-600 hover:border-gray-500 rounded-2xl px-8 py-4 text-lg font-bold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Add Category
-                </Button>
-              </div>
-            </div>
-
-            {/* Existing Skills Categories */}
-            <div className="space-y-8">
-              {Object.entries(skillsData).map(([categoryKey, skillsString]) => (
-                <motion.div
-                  key={categoryKey}
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="bg-gray-900/30 border border-gray-700 rounded-3xl p-8 space-y-6"
-                >
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-2xl font-bold text-white flex items-center gap-3">
-                      <Star className="w-6 h-6 text-yellow-400" />
-                      {categoryDisplayName(categoryKey)}
-                    </h4>
-                    <Button
-                      type="button"
-                      onClick={() => removeCategory(categoryKey)}
-                      className="bg-red-900/20 border-red-800 text-red-400 hover:bg-red-900/30 hover:text-red-300 rounded-xl px-4 py-2"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </Button>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <Label className="text-lg font-semibold text-gray-300">
-                      Skills (comma-separated)
-                    </Label>
-                    <Textarea
-                      value={String(skillsString || '')}
-                      onChange={(e) => updateCategorySkills(categoryKey, e.target.value)}
-                      placeholder="JavaScript, Python, React, Node.js, MongoDB"
-                      className="min-h-32 text-lg bg-gray-900/50 border-2 border-gray-700 rounded-2xl focus:border-gray-500 focus:ring-0 transition-all duration-300 text-white placeholder:text-gray-500 hover:border-gray-600 resize-none"
-                    />
-                    <p className="text-sm text-gray-500">
-                      Enter skills separated by commas. Example: JavaScript, Python, React
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-            {Object.keys(skillsData).length === 0 && (
-              <div className="text-center py-12">
-                <Award className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                <h3 className="text-xl text-gray-400 mb-2">No skills added yet</h3>
-                <p className="text-gray-500">Add your first skill category above to get started</p>
-              </div>
-            )}
-
-            {/* Navigation */}
-            <div className="flex justify-between items-center pt-10 border-t border-gray-800">
-              <Button
-                type="button"
-                onClick={onPrev}
-                className="bg-gray-800 hover:bg-gray-700 text-white border border-gray-600 hover:border-gray-500 rounded-2xl px-8 py-6 text-xl font-bold transition-all duration-300 flex items-center gap-3"
-              >
-                <ArrowLeft className="w-6 h-6" />
-                Previous
-              </Button>
-              <Button
-                type="submit"
-                className="bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-600 hover:to-gray-800 text-white px-10 py-6 text-xl font-bold rounded-2xl shadow-2xl hover:shadow-gray-900/50 transition-all duration-300 flex items-center gap-4 border border-gray-600 hover:border-gray-500"
-              >
-                Continue to Preview
-                <ArrowRight className="w-6 h-6" />
-              </Button>
-            </div>
-          </form>
-        </div>
+      <div className="flex justify-between items-center mt-8 pt-6 border-t border-gray-200/50">
+        <button
+          onClick={onPrev}
+          className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          Previous
+        </button>
+        
+        <button
+          onClick={onNext}
+          className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl transition-all duration-300 flex items-center gap-2 hover:from-indigo-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105"
+        >
+          Preview Resume
+          <ArrowRight className="w-5 h-5" />
+        </button>
       </div>
     </motion.div>
   );

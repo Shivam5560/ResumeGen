@@ -1,25 +1,7 @@
 "use client";
 
 import { useEffect, useCallback, useRef } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { motion } from "framer-motion";
-import { ArrowRight, User, Mail, MapPin, Linkedin, Github } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
-
-const personalInfoSchema = z.object({
-  name: z.string().min(2, "Full name is required"),
-  email: z.string().email("Invalid email address"),
-  location: z.string().min(2, "Location is required"),
-  linkedin_url: z.string().min(1, "LinkedIn URL is required"),
-  github_url: z.string().min(1, "GitHub URL is required"),
-});
-
-type PersonalInfoForm = z.infer<typeof personalInfoSchema>;
 
 interface PersonalInfoFormProps {
   data: Record<string, any>;
@@ -30,203 +12,133 @@ interface PersonalInfoFormProps {
 export default function PersonalInfoForm({ data, onUpdate, onNext }: PersonalInfoFormProps) {
   const previousDataRef = useRef<string>('');
   
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isValid },
-    watch
-  } = useForm<PersonalInfoForm>({
-    resolver: zodResolver(personalInfoSchema),
-    defaultValues: data,
-    mode: "onChange"
-  });
-
-  const watchedValues = watch();
-
-  // Use useCallback to memoize the update function
-  const updateData = useCallback(() => {
-    const currentDataString = JSON.stringify(watchedValues);
+  const handleInputChange = (field: string, value: string) => {
+    const updatedData = { ...data, [field]: value };
+    const currentDataString = JSON.stringify(updatedData);
+    
     if (currentDataString !== previousDataRef.current) {
       previousDataRef.current = currentDataString;
-      onUpdate(watchedValues);
-    }
-  }, [watchedValues, onUpdate]);
-
-  useEffect(() => {
-    updateData();
-  }, [updateData]);
-
-  const onSubmit = () => {
-    if (isValid) {
-      onNext();
+      onUpdate(updatedData);
     }
   };
+
+  const isFormValid = data.name && data.email && data.location && data.linkedin_url && data.github_url;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-      className="w-full"
+      transition={{ duration: 0.5 }}
+      className="bg-white/90 backdrop-blur-lg rounded-3xl border border-gray-200/50 shadow-xl p-8"
     >
-      <div className="bg-black/95 backdrop-blur-sm rounded-3xl shadow-2xl border border-gray-800 overflow-hidden">
-        {/* Header Section */}
-        <div className="bg-gradient-to-r from-gray-900 to-black px-8 py-8 border-b border-gray-800">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-gray-700 to-gray-900 rounded-2xl flex items-center justify-center border border-gray-700">
-              <User className="w-8 h-8 text-gray-300" />
-            </div>
-            <div>
-              <h2 className="text-3xl font-bold text-white">Personal Information</h2>
-              <p className="text-gray-400 text-lg">Let's start with your basic details</p>
-            </div>
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-700">
+            Full Name *
+          </label>
+          <input
+            type="text"
+            value={data.name || ''}
+            onChange={(e) => handleInputChange('name', e.target.value)}
+            className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 backdrop-blur-sm"
+            placeholder="Enter your full name"
+          />
         </div>
 
-        {/* Form Content */}
-        <div className="p-8 lg:p-12">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
-            {/* Full Name - Full Width */}
-            <div className="space-y-4">
-              <Label htmlFor="name" className="text-xl font-semibold text-white flex items-center gap-3">
-                <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
-                Full Name
-              </Label>
-              <Input
-                id="name"
-                {...register("name")}
-                placeholder="Enter your full name"
-                className="h-16 text-xl bg-gray-900/50 border-2 border-gray-700 rounded-2xl focus:border-gray-500 focus:ring-0 transition-all duration-300 text-white placeholder:text-gray-500 hover:border-gray-600"
-              />
-              {errors.name && (
-                <motion.p 
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-red-400 text-sm font-medium flex items-center gap-2 bg-red-900/20 px-4 py-2 rounded-lg border border-red-800/30"
-                >
-                  <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                  {errors.name.message}
-                </motion.p>
-              )}
-            </div>
-
-            {/* Contact Information Grid */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">
-              {/* Email */}
-              <div className="space-y-4">
-                <Label htmlFor="email" className="text-xl font-semibold text-white flex items-center gap-3">
-                  <Mail className="w-6 h-6 text-gray-400" />
-                  Email Address
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  {...register("email")}
-                  placeholder="your.email@example.com"
-                  className="h-16 text-xl bg-gray-900/50 border-2 border-gray-700 rounded-2xl focus:border-gray-500 focus:ring-0 transition-all duration-300 text-white placeholder:text-gray-500 hover:border-gray-600"
-                />
-                {errors.email && (
-                  <motion.p 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-red-400 text-sm font-medium flex items-center gap-2 bg-red-900/20 px-4 py-2 rounded-lg border border-red-800/30"
-                  >
-                    <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                    {errors.email.message}
-                  </motion.p>
-                )}
-              </div>
-
-              {/* Location */}
-              <div className="space-y-4">
-                <Label htmlFor="location" className="text-xl font-semibold text-white flex items-center gap-3">
-                  <MapPin className="w-6 h-6 text-gray-400" />
-                  Location
-                </Label>
-                <Input
-                  id="location"
-                  {...register("location")}
-                  placeholder="City, State/Country"
-                  className="h-16 text-xl bg-gray-900/50 border-2 border-gray-700 rounded-2xl focus:border-gray-500 focus:ring-0 transition-all duration-300 text-white placeholder:text-gray-500 hover:border-gray-600"
-                />
-                {errors.location && (
-                  <motion.p 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-red-400 text-sm font-medium flex items-center gap-2 bg-red-900/20 px-4 py-2 rounded-lg border border-red-800/30"
-                  >
-                    <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                    {errors.location.message}
-                  </motion.p>
-                )}
-              </div>
-            </div>
-
-            {/* Social Links Grid */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">
-              {/* LinkedIn URL */}
-              <div className="space-y-4">
-                <Label htmlFor="linkedin_url" className="text-xl font-semibold text-white flex items-center gap-3">
-                  <Linkedin className="w-6 h-6 text-blue-400" />
-                  LinkedIn Profile
-                </Label>
-                <Input
-                  id="linkedin_url"
-                  {...register("linkedin_url")}
-                  placeholder="https://linkedin.com/in/yourprofile"
-                  className="h-16 text-xl bg-gray-900/50 border-2 border-gray-700 rounded-2xl focus:border-gray-500 focus:ring-0 transition-all duration-300 text-white placeholder:text-gray-500 hover:border-gray-600"
-                />
-                {errors.linkedin_url && (
-                  <motion.p 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-red-400 text-sm font-medium flex items-center gap-2 bg-red-900/20 px-4 py-2 rounded-lg border border-red-800/30"
-                  >
-                    <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                    {errors.linkedin_url.message}
-                  </motion.p>
-                )}
-              </div>
-
-              {/* GitHub URL */}
-              <div className="space-y-4">
-                <Label htmlFor="github_url" className="text-xl font-semibold text-white flex items-center gap-3">
-                  <Github className="w-6 h-6 text-gray-400" />
-                  GitHub Profile
-                </Label>
-                <Input
-                  id="github_url"
-                  {...register("github_url")}
-                  placeholder="https://github.com/yourusername"
-                  className="h-16 text-xl bg-gray-900/50 border-2 border-gray-700 rounded-2xl focus:border-gray-500 focus:ring-0 transition-all duration-300 text-white placeholder:text-gray-500 hover:border-gray-600"
-                />
-                {errors.github_url && (
-                  <motion.p 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-red-400 text-sm font-medium flex items-center gap-2 bg-red-900/20 px-4 py-2 rounded-lg border border-red-800/30"
-                  >
-                    <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                    {errors.github_url.message}
-                  </motion.p>
-                )}
-              </div>
-            </div>
-
-            {/* Continue Button */}
-            <div className="flex justify-end pt-10 border-t border-gray-800">
-              <Button
-                type="submit"
-                disabled={!isValid}
-                className="bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-600 hover:to-gray-800 text-white px-10 py-6 text-xl font-bold rounded-2xl shadow-2xl hover:shadow-gray-900/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-4 border border-gray-600 hover:border-gray-500"
-              >
-                <span>Continue to Experience</span>
-                <ArrowRight className="w-6 h-6" />
-              </Button>
-            </div>
-          </form>
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-700">
+            Email Address *
+          </label>
+          <input
+            type="email"
+            value={data.email || ''}
+            onChange={(e) => handleInputChange('email', e.target.value)}
+            className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 backdrop-blur-sm"
+            placeholder="your.email@example.com"
+          />
         </div>
+
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-700">
+            Phone Number
+          </label>
+          <input
+            type="tel"
+            value={data.phone || ''}
+            onChange={(e) => handleInputChange('phone', e.target.value)}
+            className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 backdrop-blur-sm"
+            placeholder="+1 (555) 123-4567"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-700">
+            Location *
+          </label>
+          <input
+            type="text"
+            value={data.location || ''}
+            onChange={(e) => handleInputChange('location', e.target.value)}
+            className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 backdrop-blur-sm"
+            placeholder="City, State, Country"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-700">
+            LinkedIn Profile *
+          </label>
+          <input
+            type="url"
+            value={data.linkedin_url || ''}
+            onChange={(e) => handleInputChange('linkedin_url', e.target.value)}
+            className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 backdrop-blur-sm"
+            placeholder="https://linkedin.com/in/yourprofile"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-700">
+            GitHub Profile *
+          </label>
+          <input
+            type="url"
+            value={data.github_url || ''}
+            onChange={(e) => handleInputChange('github_url', e.target.value)}
+            className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 backdrop-blur-sm"
+            placeholder="https://github.com/yourusername"
+          />
+        </div>
+
+        <div className="md:col-span-2 space-y-2">
+          <label className="block text-sm font-semibold text-gray-700">
+            Professional Summary
+          </label>
+          <textarea
+            value={data.summary || ''}
+            onChange={(e) => handleInputChange('summary', e.target.value)}
+            className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 backdrop-blur-sm min-h-[120px] resize-y"
+            placeholder="Write a brief professional summary..."
+            rows={4}
+          />
+        </div>
+      </div>
+
+      <div className="flex justify-end mt-8">
+        <button
+          onClick={onNext}
+          disabled={!isFormValid}
+          className={`px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl transition-all duration-300 flex items-center gap-2 ${
+            isFormValid 
+              ? 'hover:from-indigo-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105' 
+              : 'opacity-50 cursor-not-allowed'
+          }`}
+        >
+          Next Step
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
       </div>
     </motion.div>
   );

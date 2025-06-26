@@ -1,347 +1,273 @@
 "use client";
 
-import { useEffect, useCallback, useRef } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { 
   ArrowLeft, 
   ArrowRight,
   Plus, 
   Trash2, 
-  Briefcase, 
-  Building, 
-  Calendar,
-  MapPin,
-  ListPlus
+  Briefcase
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
 
-const experienceItemSchema = z.object({
-  title: z.string().min(2, "Job title is required"),
-  company: z.string().min(2, "Company name is required"),
-  dates: z.string().min(1, "Employment dates are required"),
-  location: z.string().min(2, "Location is required"),
-  responsibilities: z.array(z.string().min(10, "Responsibility must be at least 10 characters")).min(1, "At least one responsibility is required")
-});
-
-const experienceSchema = z.object({
-  experiences: z.array(experienceItemSchema).min(1, "At least one experience is required")
-});
-
-type ExperienceForm = z.infer<typeof experienceSchema>;
+interface Experience {
+  id: string;
+  title: string;
+  company: string;
+  dates: string;
+  location: string;
+  responsibilities: string[];
+}
 
 interface ExperienceFormProps {
-  data: any[];
-  onUpdate: (data: any[]) => void;
+  data: Experience[];
+  onUpdate: (data: Experience[]) => void;
   onNext: () => void;
   onPrev: () => void;
 }
 
 export default function ExperienceForm({ data, onUpdate, onNext, onPrev }: ExperienceFormProps) {
-  const previousDataRef = useRef<string>('');
-  
-  const {
-    register,
-    control,
-    handleSubmit,
-    watch,
-    setValue,
-    formState: { errors, isValid }
-  } = useForm<ExperienceForm>({
-    resolver: zodResolver(experienceSchema),
-    defaultValues: {
-      experiences: data.length > 0 ? data : [{
+  const [experienceList, setExperienceList] = useState<Experience[]>(
+    data.length > 0 ? data : [{
+      id: '1',
+      title: "",
+      company: "",
+      dates: "",
+      location: "",
+      responsibilities: [""]
+    }]
+  );
+
+  const addExperience = () => {
+    setExperienceList(prev => [
+      ...prev,
+      {
+        id: `${Date.now()}`,
         title: "",
         company: "",
         dates: "",
         location: "",
         responsibilities: [""]
-      }]
-    },
-    mode: "onChange"
-  });
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "experiences"
-  });
-
-  const watchedValues = watch();
-
-  // Use useCallback to prevent infinite loops
-  const updateData = useCallback(() => {
-    const currentDataString = JSON.stringify(watchedValues.experiences);
-    if (currentDataString !== previousDataRef.current) {
-      previousDataRef.current = currentDataString;
-      onUpdate(watchedValues.experiences);
-    }
-  }, [watchedValues.experiences, onUpdate]);
-
-  useEffect(() => {
-    updateData();
-  }, [updateData]);
-
-  const onSubmit = (formData: ExperienceForm) => {
-    onUpdate(formData.experiences);
-    onNext();
+      }
+    ]);
   };
 
-  const addResponsibility = (experienceIndex: number) => {
-    const currentResponsibilities = watchedValues.experiences[experienceIndex]?.responsibilities || [];
-    setValue(`experiences.${experienceIndex}.responsibilities`, [...currentResponsibilities, ""]);
+  const removeExperience = (id: string) => {
+    setExperienceList(prev => prev.filter(exp => exp.id !== id));
   };
 
-  const removeResponsibility = (experienceIndex: number, responsibilityIndex: number) => {
-    const currentResponsibilities = watchedValues.experiences[experienceIndex]?.responsibilities || [];
-    if (currentResponsibilities.length > 1) {
-      const updatedResponsibilities = currentResponsibilities.filter((_, index) => index !== responsibilityIndex);
-      setValue(`experiences.${experienceIndex}.responsibilities`, updatedResponsibilities);
-    }
+  const updateExperience = (id: string, field: keyof Experience, value: string | string[]) => {
+    setExperienceList(prev =>
+      prev.map(exp =>
+        exp.id === id ? { ...exp, [field]: value } : exp
+      )
+    );
+    onUpdate(experienceList);
   };
+
+  const addResponsibility = (id: string) => {
+    setExperienceList(prev =>
+      prev.map(exp =>
+        exp.id === id 
+          ? { ...exp, responsibilities: [...exp.responsibilities, ""] }
+          : exp
+      )
+    );
+  };
+
+  const updateResponsibility = (expId: string, index: number, value: string) => {
+    setExperienceList(prev =>
+      prev.map(exp =>
+        exp.id === expId
+          ? {
+              ...exp,
+              responsibilities: exp.responsibilities.map((resp, i) =>
+                i === index ? value : resp
+              )
+            }
+          : exp
+      )
+    );
+    onUpdate(experienceList);
+  };
+
+  const removeResponsibility = (expId: string, index: number) => {
+    setExperienceList(prev =>
+      prev.map(exp =>
+        exp.id === expId
+          ? {
+              ...exp,
+              responsibilities: exp.responsibilities.filter((_, i) => i !== index)
+            }
+          : exp
+      )
+    );
+  };
+
+  const isFormValid = experienceList.every(exp =>
+    exp.title.trim() && exp.company.trim() && exp.dates.trim() && exp.location.trim() &&
+    exp.responsibilities.some(resp => resp.trim())
+  );
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-      className="w-full"
-    >
-      <div className="bg-black/95 backdrop-blur-sm rounded-3xl shadow-2xl border border-gray-800 overflow-hidden">
-        {/* Header Section */}
-        <div className="bg-gradient-to-r from-gray-900 to-black px-8 py-8 border-b border-gray-800">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-gray-700 to-gray-900 rounded-2xl flex items-center justify-center border border-gray-700">
-              <Briefcase className="w-8 h-8 text-gray-300" />
+    <div className="space-y-6">
+      {experienceList.map((experience, index) => (
+        <motion.div
+          key={experience.id}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: index * 0.1 }}
+          className="bg-white/90 backdrop-blur-lg rounded-3xl border border-gray-200/50 shadow-xl p-8"
+        >
+          <div className="flex items-center justify-between mb-6 border-b border-gray-200/50 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center">
+                <Briefcase className="w-5 h-5 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-800">
+                Experience {index + 1}
+              </h3>
             </div>
-            <div>
-              <h2 className="text-3xl font-bold text-white">Work Experience</h2>
-              <p className="text-gray-400 text-lg">Share your professional journey</p>
+            {experienceList.length > 1 && (
+              <button
+                onClick={() => removeExperience(experience.id)}
+                className="px-3 py-2 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-all duration-200 flex items-center gap-1 shadow-md hover:shadow-lg hover:scale-105"
+              >
+                <Trash2 className="w-4 h-4" />
+                Remove
+              </button>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">
+                Job Title *
+              </label>
+              <input
+                type="text"
+                value={experience.title}
+                onChange={(e) => updateExperience(experience.id, 'title', e.target.value)}
+                className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 backdrop-blur-sm"
+                placeholder="e.g., Software Engineer"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">
+                Company *
+              </label>
+              <input
+                type="text"
+                value={experience.company}
+                onChange={(e) => updateExperience(experience.id, 'company', e.target.value)}
+                className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 backdrop-blur-sm"
+                placeholder="e.g., Tech Corp Inc."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">
+                Employment Dates *
+              </label>
+              <input
+                type="text"
+                value={experience.dates}
+                onChange={(e) => updateExperience(experience.id, 'dates', e.target.value)}
+                className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 backdrop-blur-sm"
+                placeholder="e.g., Aug 2024 -- Present"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">
+                Location *
+              </label>
+              <input
+                type="text"
+                value={experience.location}
+                onChange={(e) => updateExperience(experience.id, 'location', e.target.value)}
+                className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 backdrop-blur-sm"
+                placeholder="e.g., San Francisco, CA"
+              />
+            </div>
+
+            <div className="md:col-span-2 space-y-4">
+              <div className="flex items-center justify-between">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Key Responsibilities
+                </label>
+                <button
+                  onClick={() => addResponsibility(experience.id)}
+                  className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg font-medium hover:from-indigo-600 hover:to-purple-600 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:scale-105"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Responsibility
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                {experience.responsibilities.map((responsibility, respIndex) => (
+                  <div key={respIndex} className="flex gap-3">
+                    <textarea
+                      value={responsibility}
+                      onChange={(e) => updateResponsibility(experience.id, respIndex, e.target.value)}
+                      className="flex-1 px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 backdrop-blur-sm min-h-[80px] resize-y"
+                      placeholder="Describe your key responsibility or achievement..."
+                    />
+                    {experience.responsibilities.length > 1 && (
+                      <button
+                        onClick={() => removeResponsibility(experience.id, respIndex)}
+                        className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors h-fit"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        </motion.div>
+      ))}
 
-        {/* Form Content */}
-        <div className="p-8 lg:p-12">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-12">
-            {fields.map((field, index) => (
-              <motion.div
-                key={field.id}
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="bg-gray-900/30 border border-gray-700 rounded-3xl p-8 space-y-8"
-              >
-                <div className="flex items-center justify-between">
-                  <h3 className="text-2xl font-bold text-white flex items-center gap-3">
-                    <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
-                    Experience {index + 1}
-                  </h3>
-                  {fields.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => remove(index)}
-                      className="bg-red-900/20 border-red-800 text-red-400 hover:bg-red-900/30 hover:text-red-300 rounded-xl px-4 py-2"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </Button>
-                  )}
-                </div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: experienceList.length * 0.1 }}
+        className="flex justify-center"
+      >
+        <button
+          onClick={addExperience}
+          className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-xl font-semibold hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105"
+        >
+          <Plus className="w-5 h-5" />
+          Add Another Experience
+        </button>
+      </motion.div>
 
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                  {/* Job Title */}
-                  <div className="space-y-4">
-                    <Label className="text-xl font-semibold text-white flex items-center gap-3">
-                      <Briefcase className="w-6 h-6 text-gray-400" />
-                      Job Title
-                    </Label>
-                    <Input
-                      {...register(`experiences.${index}.title`)}
-                      placeholder="Software Engineer"
-                      className="h-16 text-xl bg-gray-900/50 border-2 border-gray-700 rounded-2xl focus:border-gray-500 focus:ring-0 transition-all duration-300 text-white placeholder:text-gray-500 hover:border-gray-600"
-                    />
-                    {errors.experiences?.[index]?.title && (
-                      <motion.p 
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-red-400 text-sm font-medium flex items-center gap-2 bg-red-900/20 px-4 py-2 rounded-lg border border-red-800/30"
-                      >
-                        <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                        {errors.experiences[index]?.title?.message}
-                      </motion.p>
-                    )}
-                  </div>
-
-                  {/* Company */}
-                  <div className="space-y-4">
-                    <Label className="text-xl font-semibold text-white flex items-center gap-3">
-                      <Building className="w-6 h-6 text-gray-400" />
-                      Company Name
-                    </Label>
-                    <Input
-                      {...register(`experiences.${index}.company`)}
-                      placeholder="Tech Corp Inc."
-                      className="h-16 text-xl bg-gray-900/50 border-2 border-gray-700 rounded-2xl focus:border-gray-500 focus:ring-0 transition-all duration-300 text-white placeholder:text-gray-500 hover:border-gray-600"
-                    />
-                    {errors.experiences?.[index]?.company && (
-                      <motion.p 
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-red-400 text-sm font-medium flex items-center gap-2 bg-red-900/20 px-4 py-2 rounded-lg border border-red-800/30"
-                      >
-                        <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                        {errors.experiences[index]?.company?.message}
-                      </motion.p>
-                    )}
-                  </div>
-
-                  {/* Employment Dates */}
-                  <div className="space-y-4">
-                    <Label className="text-xl font-semibold text-white flex items-center gap-3">
-                      <Calendar className="w-6 h-6 text-gray-400" />
-                      Employment Dates
-                    </Label>
-                    <Input
-                      {...register(`experiences.${index}.dates`)}
-                      placeholder="Aug 2024 -- Present"
-                      className="h-16 text-xl bg-gray-900/50 border-2 border-gray-700 rounded-2xl focus:border-gray-500 focus:ring-0 transition-all duration-300 text-white placeholder:text-gray-500 hover:border-gray-600"
-                    />
-                    {errors.experiences?.[index]?.dates && (
-                      <motion.p 
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-red-400 text-sm font-medium flex items-center gap-2 bg-red-900/20 px-4 py-2 rounded-lg border border-red-800/30"
-                      >
-                        <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                        {errors.experiences[index]?.dates?.message}
-                      </motion.p>
-                    )}
-                  </div>
-
-                  {/* Work Location */}
-                  <div className="space-y-4">
-                    <Label className="text-xl font-semibold text-white flex items-center gap-3">
-                      <MapPin className="w-6 h-6 text-gray-400" />
-                      Work Location
-                    </Label>
-                    <Input
-                      {...register(`experiences.${index}.location`)}
-                      placeholder="San Francisco, CA"
-                      className="h-16 text-xl bg-gray-900/50 border-2 border-gray-700 rounded-2xl focus:border-gray-500 focus:ring-0 transition-all duration-300 text-white placeholder:text-gray-500 hover:border-gray-600"
-                    />
-                    {errors.experiences?.[index]?.location && (
-                      <motion.p 
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-red-400 text-sm font-medium flex items-center gap-2 bg-red-900/20 px-4 py-2 rounded-lg border border-red-800/30"
-                      >
-                        <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                        {errors.experiences[index]?.location?.message}
-                      </motion.p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Responsibilities */}
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xl font-semibold text-white flex items-center gap-3">
-                      <ListPlus className="w-6 h-6 text-gray-400" />
-                      Key Responsibilities
-                    </Label>
-                    <Button
-                      type="button"
-                      onClick={() => addResponsibility(index)}
-                      className="bg-gray-700 hover:bg-gray-600 text-white border border-gray-600 hover:border-gray-500 rounded-xl px-6 py-3 font-semibold transition-all duration-300 flex items-center gap-2"
-                    >
-                      <Plus className="w-5 h-5" />
-                      Add Responsibility
-                    </Button>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    {watchedValues.experiences?.[index]?.responsibilities?.map((_, responsibilityIndex) => (
-                      <div key={responsibilityIndex} className="flex gap-4">
-                        <Textarea
-                          {...register(`experiences.${index}.responsibilities.${responsibilityIndex}`)}
-                          placeholder="Describe your key responsibility or achievement..."
-                          className="flex-1 min-h-24 text-lg bg-gray-900/50 border-2 border-gray-700 rounded-2xl focus:border-gray-500 focus:ring-0 transition-all duration-300 text-white placeholder:text-gray-500 hover:border-gray-600 resize-none"
-                        />
-                        {watchedValues.experiences[index]?.responsibilities.length > 1 && (
-                          <Button
-                            type="button"
-                            onClick={() => removeResponsibility(index, responsibilityIndex)}
-                            className="bg-red-900/20 border-red-800 text-red-400 hover:bg-red-900/30 hover:text-red-300 rounded-xl px-4 py-2 h-fit"
-                          >
-                            <Trash2 className="w-5 h-5" />
-                          </Button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {errors.experiences?.[index]?.responsibilities && (
-                    <motion.p 
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="text-red-400 text-sm font-medium flex items-center gap-2 bg-red-900/20 px-4 py-2 rounded-lg border border-red-800/30"
-                    >
-                      <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                      {errors.experiences[index]?.responsibilities?.message}
-                    </motion.p>
-                  )}
-                </div>
-              </motion.div>
-            ))}
-
-            {/* Add New Experience */}
-            <div className="flex justify-center">
-              <Button
-                type="button"
-                onClick={() => append({
-                  title: "",
-                  company: "",
-                  dates: "",
-                  location: "",
-                  responsibilities: [""]
-                })}
-                className="bg-gray-800 hover:bg-gray-700 text-white border border-gray-600 hover:border-gray-500 rounded-2xl px-8 py-6 text-xl font-bold transition-all duration-300 flex items-center gap-3"
-              >
-                <Plus className="w-6 h-6" />
-                Add Another Experience
-              </Button>
-            </div>
-
-            {/* Navigation */}
-            <div className="flex justify-between items-center pt-10 border-t border-gray-800">
-              <Button
-                type="button"
-                onClick={onPrev}
-                className="bg-gray-800 hover:bg-gray-700 text-white border border-gray-600 hover:border-gray-500 rounded-2xl px-8 py-6 text-xl font-bold transition-all duration-300 flex items-center gap-3"
-              >
-                <ArrowLeft className="w-6 h-6" />
-                Previous
-              </Button>
-              <Button
-                type="submit"
-                disabled={!isValid}
-                className="bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-600 hover:to-gray-800 text-white px-10 py-6 text-xl font-bold rounded-2xl shadow-2xl hover:shadow-gray-900/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-4 border border-gray-600 hover:border-gray-500"
-              >
-                Continue to Education
-                <ArrowRight className="w-6 h-6" />
-              </Button>
-            </div>
-          </form>
-        </div>
+      <div className="flex justify-between items-center mt-8 pt-6 border-t border-gray-200/50">
+        <button
+          onClick={onPrev}
+          className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          Previous
+        </button>
+        
+        <button
+          onClick={onNext}
+          disabled={!isFormValid}
+          className={`px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl transition-all duration-300 flex items-center gap-2 ${
+            isFormValid 
+              ? 'hover:from-indigo-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105' 
+              : 'opacity-50 cursor-not-allowed'
+          }`}
+        >
+          Next Step
+          <ArrowRight className="w-5 h-5" />
+        </button>
       </div>
-    </motion.div>
+    </div>
   );
 }
