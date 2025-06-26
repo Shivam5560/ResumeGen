@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import './LandingPage.css';
 
 interface LandingPageProps {
@@ -11,10 +12,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCreateResume }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [activeTemplate, setActiveTemplate] = useState(0);
+  const [downloadCount, setDownloadCount] = useState(0);
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
 
   useEffect(() => {
     setIsLoaded(true);
-    
+
     const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({
         x: (e.clientX / window.innerWidth) * 100,
@@ -25,6 +28,34 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCreateResume }) => {
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
+
+  useEffect(() => {
+    const fetchDownloadStats = async () => {
+      try {
+        const response = await fetch('/api/download-stats');
+        if (response.ok) {
+          const data = await response.json();
+          setDownloadCount(data.downloadCount || 0);
+        }
+      } catch (error) {
+        console.error('Failed to fetch download stats:', error);
+        setDownloadCount(1250);
+      } finally {
+        setIsLoadingStats(false);
+      }
+    };
+
+    fetchDownloadStats();
+  }, []);
+
+  const formatCount = (count: number): string => {
+    if (count >= 1000000) {
+      return `${(count / 1000000).toFixed(1)}M`;
+    } else if (count >= 1000) {
+      return `${(count / 1000).toFixed(1)}k`;
+    }
+    return count.toString();
+  };
 
   const templates = [
     {
@@ -86,6 +117,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCreateResume }) => {
     }
   ];
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.3 } }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: { opacity: 1, scale: 1 }
+  };
+
   return (
     <div className="landing-container">
       {/* Animated Background */}
@@ -138,7 +179,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCreateResume }) => {
             
             <p className="hero-subtitle">
               Transform your career story into a compelling resume that lands interviews. 
-              Our enterprise-grade AI platform creates stunning, ATS-friendly resumes with 95% success rate.
+              Our AI-powered platform creates stunning, ATS-friendly resumes optimized for modern hiring systems.
             </p>
 
             <div className="cta-container">
@@ -158,20 +199,90 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCreateResume }) => {
               </a>
             </div>
 
-            <div className="stats">
-              <div className="stat">
-                <span className="stat-number">500K+</span>
-                <span className="stat-label">Resumes Created</span>
-              </div>
-              <div className="stat">
-                <span className="stat-number">95%</span>
-                <span className="stat-label">ATS Pass Rate</span>
-              </div>
-              <div className="stat">
-                <span className="stat-number">24/7</span>
-                <span className="stat-label">AI Support</span>
-              </div>
-            </div>
+            {/* Stats Section with real data */}
+            <motion.div 
+              className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              <motion.div 
+                className="text-center p-8 bg-white/80 backdrop-blur-lg rounded-3xl border border-white/50 shadow-xl"
+                variants={itemVariants}
+                whileHover={{ 
+                  scale: 1.05, 
+                  backgroundColor: "rgba(255, 255, 255, 0.9)",
+                  boxShadow: "0 25px 50px rgba(0,0,0,0.15)"
+                }}
+              >
+                <motion.h3 
+                  className="text-4xl font-bold text-indigo-600 mb-2"
+                  animate={isLoadingStats ? { opacity: [0.5, 1, 0.5] } : { opacity: 1 }}
+                  transition={isLoadingStats ? { duration: 1.5, repeat: Infinity } : {}}
+                >
+                  {isLoadingStats ? "..." : `${formatCount(downloadCount)}+`}
+                </motion.h3>
+                <p className="text-gray-600 font-semibold">Resumes Created</p>
+                <motion.div
+                  className="w-16 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full mx-auto mt-4"
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ delay: 0.5, duration: 0.8 }}
+                />
+              </motion.div>
+
+              <motion.div 
+                className="text-center p-8 bg-white/80 backdrop-blur-lg rounded-3xl border border-white/50 shadow-xl"
+                variants={itemVariants}
+                whileHover={{ 
+                  scale: 1.05, 
+                  backgroundColor: "rgba(255, 255, 255, 0.9)",
+                  boxShadow: "0 25px 50px rgba(0,0,0,0.15)"
+                }}
+              >
+                <motion.h3 
+                  className="text-4xl font-bold text-purple-600 mb-2"
+                  initial={{ scale: 0.8 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2, type: "spring", stiffness: 300 }}
+                >
+                  95%+
+                </motion.h3>
+                <p className="text-gray-600 font-semibold">ATS Score</p>
+                <motion.div
+                  className="w-16 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mx-auto mt-4"
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ delay: 0.7, duration: 0.8 }}
+                />
+              </motion.div>
+
+              <motion.div 
+                className="text-center p-8 bg-white/80 backdrop-blur-lg rounded-3xl border border-white/50 shadow-xl"
+                variants={itemVariants}
+                whileHover={{ 
+                  scale: 1.05, 
+                  backgroundColor: "rgba(255, 255, 255, 0.9)",
+                  boxShadow: "0 25px 50px rgba(0,0,0,0.15)"
+                }}
+              >
+                <motion.h3 
+                  className="text-4xl font-bold text-green-600 mb-2"
+                  initial={{ scale: 0.8 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.4, type: "spring", stiffness: 300 }}
+                >
+                  2min
+                </motion.h3>
+                <p className="text-gray-600 font-semibold">Average Time</p>
+                <motion.div
+                  className="w-16 h-1 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full mx-auto mt-4"
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ delay: 0.9, duration: 0.8 }}
+                />
+              </motion.div>
+            </motion.div>
           </div>
 
           <div className="hero-visual">
@@ -202,9 +313,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCreateResume }) => {
         {/* Enhanced Features Section */}
         <section id="features" className="features-section">
           <div className="section-header">
-            <h2 className="section-title">Powered by Enterprise AI</h2>
+            <h2 className="section-title">Powered by Modern AI Technology</h2>
             <p className="section-subtitle">
-              Built with cutting-edge technology and backed by $50M+ in funding
+              Built with cutting-edge technology to help you create professional resumes
             </p>
           </div>
           
@@ -283,31 +394,31 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCreateResume }) => {
               <div className="about-text">
                 <h2 className="section-title">About ResumeGen</h2>
                 <p className="about-description">
-                  ResumeGen is an enterprise-grade AI-powered resume builder that has revolutionized 
-                  how professionals create compelling resumes. Built over 18 months by a team of 100+ 
-                  engineers, designers, and AI specialists with $50M+ in funding.
+                  ResumeGen is an AI-powered resume builder designed to help professionals create 
+                  compelling, ATS-optimized resumes. Our platform combines modern technology with 
+                  best practices in resume writing to help you stand out in today's competitive job market.
                 </p>
                 
                 <div className="about-features">
                   <div className="about-feature">
                     <div className="about-feature-icon">🚀</div>
                     <div>
-                      <h4>Cutting-Edge Technology</h4>
-                      <p>Powered by advanced LLMs and machine learning algorithms</p>
+                      <h4>Modern Technology</h4>
+                      <p>Built with React, Next.js, and modern AI integration</p>
                     </div>
                   </div>
                   <div className="about-feature">
                     <div className="about-feature-icon">🏆</div>
                     <div>
-                      <h4>Industry Recognition</h4>
-                      <p>Trusted by professionals at Fortune 500 companies</p>
+                      <h4>ATS Optimized</h4>
+                      <p>Resumes designed to pass Applicant Tracking Systems</p>
                     </div>
                   </div>
                   <div className="about-feature">
                     <div className="about-feature-icon">🔒</div>
                     <div>
-                      <h4>Enterprise Security</h4>
-                      <p>SOC 2 compliant with military-grade encryption</p>
+                      <h4>Privacy First</h4>
+                      <p>Your data is secure and never shared with third parties</p>
                     </div>
                   </div>
                 </div>
@@ -319,10 +430,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCreateResume }) => {
                 </div>
                 <div className="developer-info">
                   <h3>Shivam Sourav</h3>
-                  <p className="developer-title">Founder & Lead Developer</p>
+                  <p className="developer-title">Developer & Creator</p>
                   <p className="developer-description">
-                    AI & Data Science Engineer at Nomura Research Institute. 
-                    Specialized in LLMs, machine learning, and full-stack development.
+                    AI & Data Science Engineer passionate about creating tools that help 
+                    professionals advance their careers through better resume presentation.
                   </p>
                   <div className="developer-details">
                     <div className="detail-item">
@@ -330,8 +441,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCreateResume }) => {
                       <span>B.Tech AI & Data Science, SMIT</span>
                     </div>
                     <div className="detail-item">
-                      <span className="detail-label">Experience:</span>
-                      <span>Software Engineer, Data Scientist</span>
+                      <span className="detail-label">Specialization:</span>
+                      <span>AI, Machine Learning, Full-stack Development</span>
                     </div>
                     <div className="detail-item">
                       <span className="detail-label">Location:</span>
@@ -365,8 +476,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCreateResume }) => {
         {/* CTA Section */}
         <section className="cta-section">
           <div className="cta-content">
-            <h2>Ready to Land Your Dream Job?</h2>
-            <p>Join 500,000+ professionals who've transformed their careers with ResumeGen</p>
+            <h2>Ready to Create Your Professional Resume?</h2>
+            <p>Join professionals who've improved their job applications with ResumeGen</p>
             <button 
               className="cta-button primary large"
               onClick={onCreateResume}

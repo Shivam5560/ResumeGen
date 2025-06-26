@@ -100,6 +100,20 @@ export default function PreviewStep({ data, onPrev, transformedData }: PreviewSt
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
+
+      // Track the download
+      try {
+        await fetch('/api/download-stats', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        console.log('Download tracked successfully');
+      } catch (trackError) {
+        console.error('Failed to track download:', trackError);
+        // Don't fail the download if tracking fails
+      }
       
     } catch (error) {
       console.error('Error generating resume:', error);
@@ -117,27 +131,27 @@ export default function PreviewStep({ data, onPrev, transformedData }: PreviewSt
       transition={{ duration: 0.3 }}
       className="w-full"
     >
-      <div className="bg-black/95 backdrop-blur-sm rounded-3xl shadow-2xl border border-gray-800 overflow-hidden">
+      <div className="bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl border border-gray-200/50 overflow-hidden">
         {/* Header Section */}
-        <div className="bg-gradient-to-r from-gray-900 to-black px-8 py-8 border-b border-gray-800">
+        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 px-8 py-8 border-b border-gray-200/50">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-gray-700 to-gray-900 rounded-2xl flex items-center justify-center border border-gray-700">
-              <Eye className="w-8 h-8 text-gray-300" />
+            <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <Eye className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h2 className="text-3xl font-bold text-white">Preview & Download</h2>
-              <p className="text-gray-400 text-lg">Review your resume and download</p>
+              <h2 className="text-3xl font-bold text-gray-800">Preview & Download</h2>
+              <p className="text-gray-600 text-lg">Review your resume and download</p>
             </div>
           </div>
         </div>
 
         {/* Content */}
-        <div className="p-8 lg:p-12">
+        <div className="p-8 lg:p-12 bg-gradient-to-br from-gray-50/50 to-blue-50/30">
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-12">
             
             {/* Preview Section */}
             <div className="xl:col-span-2">
-              <div className="bg-white rounded-3xl p-8 lg:p-12 shadow-2xl min-h-[800px]">
+              <div className="bg-white rounded-3xl p-8 lg:p-12 shadow-xl border border-gray-200/50 min-h-[800px]">
                 {/* Header */}
                 <div className="border-b-2 border-gray-200 pb-8 mb-8">
                   <h1 className="text-4xl font-bold text-gray-900 mb-2">
@@ -288,8 +302,8 @@ export default function PreviewStep({ data, onPrev, transformedData }: PreviewSt
 
             {/* Download Section */}
             <div className="xl:col-span-1">
-              <div className="bg-gray-900/30 border border-gray-700 rounded-3xl p-8 sticky top-8">
-                <h3 className="text-2xl font-bold text-white mb-8 flex items-center gap-3">
+              <div className="bg-white/90 backdrop-blur-lg border border-gray-200/50 rounded-3xl p-8 sticky top-8 shadow-xl">
+                <h3 className="text-2xl font-bold text-gray-800 mb-8 flex items-center gap-3">
                   <Download className="w-6 h-6" />
                   Download Resume
                 </h3>
@@ -298,7 +312,7 @@ export default function PreviewStep({ data, onPrev, transformedData }: PreviewSt
                   <Button
                     onClick={() => handleDownload('pdf')}
                     disabled={isGenerating}
-                    className="w-full bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white py-6 text-lg font-bold rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-red-900/50"
+                    className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white py-6 text-lg font-bold rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl hover:scale-105"
                   >
                     {isGenerating && downloadFormat === 'pdf' ? (
                       <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -311,7 +325,7 @@ export default function PreviewStep({ data, onPrev, transformedData }: PreviewSt
                   <Button
                     onClick={() => handleDownload('latex')}
                     disabled={isGenerating}
-                    className="w-full bg-gradient-to-r from-green-600 to-green-800 hover:from-green-700 hover:to-green-900 text-white py-6 text-lg font-bold rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-green-900/50"
+                    className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-6 text-lg font-bold rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl hover:scale-105"
                   >
                     {isGenerating && downloadFormat === 'latex' ? (
                       <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -322,9 +336,9 @@ export default function PreviewStep({ data, onPrev, transformedData }: PreviewSt
                   </Button>
                 </div>
 
-                <div className="mt-8 p-6 bg-gray-800/50 rounded-2xl border border-gray-700">
-                  <h4 className="text-lg font-semibold text-white mb-4">Tips:</h4>
-                  <ul className="text-gray-400 space-y-2 text-sm">
+                <div className="mt-8 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-200/50">
+                  <h4 className="text-lg font-semibold text-gray-800 mb-4">Tips:</h4>
+                  <ul className="text-gray-600 space-y-2 text-sm">
                     <li>• PDF is ready to use for applications</li>
                     <li>• LaTeX source for customization</li>
                     <li>• Review the preview before downloading</li>
@@ -336,11 +350,11 @@ export default function PreviewStep({ data, onPrev, transformedData }: PreviewSt
           </div>
 
           {/* Navigation */}
-          <div className="flex justify-start pt-10 border-t border-gray-800 mt-12">
+          <div className="flex justify-start pt-10 border-t border-gray-200/50 mt-12">
             <Button
               type="button"
               onClick={onPrev}
-              className="bg-gray-800 hover:bg-gray-700 text-white border border-gray-600 hover:border-gray-500 rounded-2xl px-8 py-6 text-xl font-bold transition-all duration-300 flex items-center gap-3"
+              className="bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-300 hover:border-indigo-300 rounded-2xl px-8 py-6 text-xl font-bold transition-all duration-300 flex items-center gap-3 shadow-lg hover:shadow-xl"
             >
               <ArrowLeft className="w-6 h-6" />
               Previous

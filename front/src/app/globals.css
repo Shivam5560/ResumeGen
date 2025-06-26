@@ -120,13 +120,13 @@
   }
 }
 
-/* Enhanced form styling for light theme with original format preserved */
+/* Enhanced form styling for better space utilization */
 .form-container {
-  @apply bg-white/90 backdrop-blur-lg rounded-3xl border border-gray-200/50 shadow-xl p-8;
+  @apply bg-white/90 backdrop-blur-lg rounded-3xl border border-gray-200/50 shadow-xl p-6 w-full; /* Reduced padding, added w-full */
 }
 
 .form-card {
-  @apply bg-white/90 backdrop-blur-lg rounded-3xl border border-gray-200/50 shadow-xl p-8 mb-6;
+  @apply bg-white/90 backdrop-blur-lg rounded-3xl border border-gray-200/50 shadow-xl p-6 mb-4 w-full; /* Reduced padding and margin */
 }
 
 .form-card-header {
@@ -204,15 +204,34 @@
 
 /* Navigation buttons */
 .nav-buttons {
-  @apply flex justify-between items-center mt-8 pt-6 border-t border-gray-200/50;
+  @apply flex justify-between items-center mt-6 pt-4 border-t border-gray-200/50 w-full;
 }
 
-.nav-button-prev {
-  @apply px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg;
+/* Enhanced responsive layout utilities */
+.layout-container {
+  @apply w-full h-full flex flex-col;
 }
 
-.nav-button-next {
-  @apply px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105;
+.form-section {
+  @apply w-full flex-1 min-h-0; /* Ensure proper height calculation */
+}
+
+.preview-section {
+  @apply w-full h-full flex flex-col bg-gradient-to-br from-gray-50 to-gray-100;
+}
+
+/* Improved visual separation */
+.preview-separator {
+  @apply border-l-2 border-indigo-200 shadow-lg bg-gradient-to-br from-gray-50/90 to-gray-100/90 backdrop-blur-xl;
+}
+
+/* Enhanced responsive grid for forms */
+.form-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4 w-full;
+}
+
+.form-grid-full {
+  @apply md:col-span-2 w-full;
 }
 
 /* Card variations for light theme */
@@ -297,6 +316,23 @@
 
 .border-gradient {
   @apply border border-transparent bg-gradient-to-r from-indigo-200 to-purple-200;
+}
+
+/* Custom gradient border utilities */
+@layer utilities {
+  .border-gradient-wrapper {
+    position: relative;
+    padding: 2px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  }
+  
+  .border-gradient-content {
+    background: white;
+    border-radius: inherit;
+    height: 100%;
+    width: 100%;
+  }
 }
 
 /* Scroll styling */
