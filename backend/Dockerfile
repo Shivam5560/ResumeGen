@@ -1,23 +1,26 @@
 FROM paperist/texlive-ja:latest
 
-# Add deadsnakes PPA for Python 3.11 and install
+# Install Python 3.11 using manual repository addition
 RUN apt-get update && apt-get install -y \
     software-properties-common \
-    && add-apt-repository ppa:deadsnakes/ppa \
+    gpg \
+    wget \
+    && wget -O- https://keyserver.ubuntu.com/pks/lookup?op=get\&search=0xF23C5A6CF475977595C89F51BA6932366A755776 | gpg --dearmor | tee /usr/share/keyrings/deadsnakes.gpg > /dev/null \
+    && echo "deb [signed-by=/usr/share/keyrings/deadsnakes.gpg] https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu jammy main" | tee /etc/apt/sources.list.d/deadsnakes.list \
     && apt-get update \
     && apt-get install -y \
     python3.11 \
-    python3.11-pip \
+    python3.11-dev \
     python3.11-venv \
-    python3.11-distutils \
+    curl \
     && rm -rf /var/lib/apt/lists/*
+
+# Install pip for Python 3.11
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11
 
 # Create symlinks for python and pip
 RUN ln -sf /usr/bin/python3.11 /usr/bin/python && \
     ln -sf /usr/bin/python3.11 /usr/bin/python3
-
-# Install pip for Python 3.11
-RUN python3.11 -m ensurepip --upgrade
 
 WORKDIR /app
 
