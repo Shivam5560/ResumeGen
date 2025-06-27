@@ -1,4 +1,4 @@
-# ResumeGen - Professional Resume Generator
+# ResNex - Professional Resume Generator
 
 A modern, multi-step resume generator built with Next.js, TypeScript, and Tailwind CSS. Generate professional resumes in PDF or LaTeX format with a beautiful, intuitive interface.
 
@@ -62,7 +62,7 @@ Before running this project, make sure you have the following installed:
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd ResumeGen/front
+   cd ResNex/front
    ```
 
 2. **Install dependencies**

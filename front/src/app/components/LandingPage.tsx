@@ -119,7 +119,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCreateResume }) => {
         <header className="header">
           <div className="logo-container">
             <div className="logo">
-              <span className="logo-text">ResumeGen</span>
+              <span className="logo-text">ResNex</span>
               <div className="logo-underline"></div>
             </div>
           </div>
@@ -329,9 +329,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCreateResume }) => {
           <div className="about-container">
             <div className="about-content">
               <div className="about-text">
-                <h2 className="section-title">About ResumeGen</h2>
+                <h2 className="section-title">About ResNex</h2>
                 <p className="about-description">
-                  ResumeGen is an AI-powered resume builder designed to help professionals create 
+                  ResNex is an AI-powered resume builder designed to help professionals create 
                   compelling, ATS-optimized resumes. Our platform combines modern technology with 
                   best practices in resume writing to help you stand out in today&apos;s competitive job market.
                 </p>
@@ -367,12 +367,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCreateResume }) => {
                 </div>
                 <div className="developer-info">
                   <h3>Shivam Sourav</h3>
-                  <p className="developer-title">Developer & Creator</p>
+                  <p className="developer-title">Associate Software Engineer</p>
                   <p className="developer-description">
-                    AI & Data Science Engineer passionate about creating tools that help 
+                    Associate Software Engineer at NRI Fintech India, passionate about creating tools that help 
                     professionals advance their careers through better resume presentation.
                   </p>
                   <div className="developer-details">
+                    <div className="detail-item">
+                      <span className="detail-label">Current Role:</span>
+                      <span>Associate Software Engineer at NRI Fintech India</span>
+                    </div>
                     <div className="detail-item">
                       <span className="detail-label">Education:</span>
                       <span>B.Tech AI & Data Science, SMIT</span>
@@ -414,7 +418,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCreateResume }) => {
         <section className="cta-section">
           <div className="cta-content">
             <h2>Ready to Create Your Professional Resume?</h2>
-            <p>Join professionals who&apos;ve improved their job applications with ResumeGen</p>
+            <p>Join professionals who&apos;ve improved their job applications with ResNex</p>
             <button 
               className="cta-button primary large"
               onClick={onCreateResume}
