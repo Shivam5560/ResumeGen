@@ -3,8 +3,6 @@ FROM paperist/texlive-ja:latest
 # Install Python 3.10 and pip
 RUN apt-get update && apt-get install -y \
     python3.10 \
-    python3.10-distutils \
-    python3.10-venv \
     python3-pip
 
 # Create symlinks for python and pip
