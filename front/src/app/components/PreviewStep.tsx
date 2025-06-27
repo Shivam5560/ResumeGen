@@ -76,30 +76,31 @@ export default function PreviewStep({ data, onPrev, transformedData }: PreviewSt
     try {
       setIsGenerating(true);
       
-      const backendData = transformedData || {
-        name: data.personal?.name || '',
-        email: data.personal?.email || '',
-        location: data.personal?.location || '',
-        linkedin_url: data.personal?.linkedin_url || '',
-        github_url: data.personal?.github_url || '',
-        
-        experiences: Array.isArray(data.experience) ? data.experience.filter((exp: Experience) => 
+      // Transform the data to match backend expectations exactly
+      const backendData = {
+        personal: {
+          name: data.personal?.name || '',
+          email: data.personal?.email || '',
+          location: data.personal?.location || '',
+          linkedin_url: data.personal?.linkedin_url || '',
+          github_url: data.personal?.github_url || ''
+        },
+        experience: Array.isArray(data.experience) ? data.experience.filter((exp: Experience) => 
           (exp.title && exp.title.trim()) || (exp.company && exp.company.trim())
         ) : [],
-        
         education: Array.isArray(data.education) ? data.education.filter((edu: Education) => 
           (edu.institution && edu.institution.trim()) || (edu.degree && edu.degree.trim())
         ) : [],
-        
         projects: Array.isArray(data.projects) ? data.projects
           .filter((project: Project) => project.title && project.title.trim())
           .map((project: Project) => ({
             title: project.title || '',
-            descriptions: Array.isArray(project.description) 
+            description: Array.isArray(project.description) 
               ? project.description.filter((desc: string) => desc && desc.trim())
+              : Array.isArray(project.descriptions)
+              ? project.descriptions.filter((desc: string) => desc && desc.trim())
               : []
           })) : [],
-        
         skills: data.skills || {}
       };
 

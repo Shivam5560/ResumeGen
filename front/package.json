@@ -6,11 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "test:api": "curl http://localhost:3000/api/health",
-    "test:backend": "curl https://resumegen-780f.onrender.com/health",
-    "deploy:vercel": "vercel --prod",
-    "logs:vercel": "vercel logs"
+    "lint": "next lint"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",

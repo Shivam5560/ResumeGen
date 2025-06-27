@@ -128,7 +128,7 @@ const slideVariants = {
   })
 };
 
-// Add this function to test API connectivity
+// Add this function to test connectivity
 const testApiConnection = async () => {
   try {
     const response = await fetch('/api/health');
