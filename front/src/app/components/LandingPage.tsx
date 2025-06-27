@@ -69,54 +69,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCreateResume }) => {
     }
   ];
 
-  const features = [
-    {
-      icon: "🎨",
-      title: "Professional Templates",
-      description: "Choose from expertly designed, ATS-optimized templates"
-    },
-    {
-      icon: "🤖",
-      title: "AI-Powered Optimization",
-      description: "Smart suggestions and content enhancement using advanced AI"
-    },
-    {
-      icon: "⚡",
-      title: "ATS-Friendly",
-      description: "Optimized for applicant tracking systems with 95% pass rate"
-    },
-    {
-      icon: "📊",
-      title: "Real-time Analytics",
-      description: "Track your resume performance with detailed insights"
-    },
-    {
-      icon: "🔒",
-      title: "Privacy Secure",
-      description: "Enterprise-grade security with end-to-end encryption"
-    },
-    {
-      icon: "⚡",
-      title: "Lightning Fast",
-      description: "Generate professional resumes in under 30 seconds"
-    },
-    {
-      icon: "🎯",
-      title: "Industry Targeting",
-      description: "Tailored suggestions for your specific industry and role"
-    },
-    {
-      icon: "📱",
-      title: "Multi-format Export",
-      description: "Download in PDF, LaTeX, Word, and more formats"
-    },
-    {
-      icon: "🔄",
-      title: "Version Control",
-      description: "Track changes and maintain multiple resume versions"
-    }
-  ];
-
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.3 } }
@@ -162,7 +114,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCreateResume }) => {
             </div>
           </div>
           <nav className="nav">
-            <a href="#features" className="nav-link">Features</a>
             <a href="#templates" className="nav-link">Templates</a>
             <a href="#about" className="nav-link">About</a>
           </nav>
@@ -307,27 +258,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCreateResume }) => {
                 </div>
               </div>
             </div>
-          </div>
-        </section>
-
-        {/* Enhanced Features Section */}
-        <section id="features" className="features-section">
-          <div className="section-header">
-            <h2 className="section-title">Powered by Modern AI Technology</h2>
-            <p className="section-subtitle">
-              Built with cutting-edge technology to help you create professional resumes
-            </p>
-          </div>
-          
-          <div className="features-grid">
-            {features.map((feature, index) => (
-              <div key={index} className="feature-card-enhanced">
-                <div className="feature-icon-enhanced">{feature.icon}</div>
-                <h3>{feature.title}</h3>
-                <p>{feature.description}</p>
-                <div className="feature-highlight"></div>
-              </div>
-            ))}
           </div>
         </section>
 

@@ -151,27 +151,29 @@ export default function PreviewStep({ data, onPrev, transformedData }: PreviewSt
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-      className="w-full"
-    >
-      <div className="bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl border border-gray-200/50 overflow-hidden">
-        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 px-8 py-8 border-b border-gray-200/50">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-              <Eye className="w-8 h-8 text-white" />
+    <div className="w-full h-full p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        transition={{ duration: 0.3 }}
+        className="bg-white/95 backdrop-blur-xl rounded-2xl border border-gray-200/60 shadow-2xl overflow-hidden h-full"
+      >
+        {/* Header Section */}
+        <div className="bg-gradient-to-r from-teal-50 to-blue-50 px-8 py-6 border-b border-gray-200/50">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+              <Eye className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="text-3xl font-bold text-gray-800">Preview & Download</h2>
-              <p className="text-gray-600 text-lg">Review your resume and download</p>
+              <h3 className="text-xl font-bold text-gray-800">Preview & Download</h3>
+              <p className="text-sm text-gray-600">Review your resume and download</p>
             </div>
           </div>
         </div>
 
-        <div className="p-8 lg:p-12 bg-gradient-to-br from-gray-50/50 to-blue-50/30">
+        {/* Content */}
+        <div className="p-8 flex-1 overflow-y-auto">
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-12">
             
             <div className="xl:col-span-2">
@@ -370,14 +372,14 @@ export default function PreviewStep({ data, onPrev, transformedData }: PreviewSt
             <Button
               type="button"
               onClick={onPrev}
-              className="bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-300 hover:border-indigo-300 rounded-2xl px-8 py-6 text-xl font-bold transition-all duration-300 flex items-center gap-3 shadow-lg hover:shadow-xl"
+              className="bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-300 hover:border-teal-300 rounded-2xl px-8 py-6 text-xl font-bold transition-all duration-300 flex items-center gap-3 shadow-lg hover:shadow-xl"
             >
               <ArrowLeft className="w-6 h-6" />
               Previous
             </Button>
           </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 }

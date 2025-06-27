@@ -172,9 +172,11 @@ export default function Home() {
     setDirection(0);
   };
 
-  const updateFormData = useCallback((section: string, data: Record<string, any>) => {
+  const updateFormData = useCallback((section: string, data: Record<string, any> | any[]) => {
+    console.log(`Updating ${section} data:`, data); // Debug log
     setFormData(prev => {
       const updated = { ...prev, [section]: data };
+      console.log('Updated formData:', updated); // Debug log
       return updated;
     });
   }, []);
@@ -275,9 +277,18 @@ export default function Home() {
         return (
           <ProjectsForm 
             data={formData.projects} 
-            onUpdate={(data: any[]) => updateFormData('projects', data)}
-            onNext={handleNext}
-            onPrev={handlePrev}
+            onUpdate={(data: any[]) => {
+              console.log('Projects onUpdate called with:', data); // Debug log
+              updateFormData('projects', data);
+            }}
+            onNext={() => {
+              console.log('Projects onNext - current formData:', formData); // Debug log
+              nextStep();
+            }}
+            onPrev={() => {
+              console.log('Projects onPrev - current formData:', formData); // Debug log
+              prevStep();
+            }}
           />
         );
       case 'skills':
@@ -315,45 +326,81 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
-      {/* Enhanced Premium Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {/* Logo Fixed in Top Right Corner of Screen */}
+      <motion.div 
+        className="fixed top-6 right-6 z-50 flex items-center gap-3"
+        initial={{ opacity: 0, x: 50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        {/* Premium Logo */}
         <motion.div 
-          className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-indigo-600/20 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3]
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-        <motion.div 
-          className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-purple-400/20 to-pink-600/20 rounded-full blur-3xl"
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.5, 0.3, 0.5]
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-        <motion.div 
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-cyan-400/10 to-blue-600/10 rounded-full blur-3xl"
-          animate={{
-            rotate: [0, 360],
-            scale: [1, 1.1, 1]
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "linear"
-          }}
-        />
-      </div>
+          className="relative"
+          whileHover={{ scale: 1.05 }}
+          transition={{ type: "spring", stiffness: 400 }}
+        >
+          <motion.div 
+            className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-xl opacity-75 blur-sm"
+            animate={{ rotate: [0, 360] }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          />
+          
+          <div className="relative w-12 h-12 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-xl flex items-center justify-center shadow-xl border-2 border-white/50">
+            <div className="relative w-8 h-8 flex items-center justify-center">
+              <motion.div 
+                className="absolute w-5 h-6 bg-white rounded-sm opacity-90"
+                animate={{ y: [0, -1, 0] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              />
+              
+              <div className="absolute inset-0 flex flex-col justify-center items-center space-y-0.5">
+                <div className="w-3 h-0.5 bg-indigo-600 rounded-full"></div>
+                <div className="w-2.5 h-0.5 bg-purple-600 rounded-full"></div>
+                <div className="w-3 h-0.5 bg-pink-600 rounded-full"></div>
+              </div>
+              
+              <motion.div 
+                className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center"
+                animate={{
+                  scale: [1, 1.2, 1],
+                  rotate: [0, 180, 360],
+                }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <Sparkles className="w-1.5 h-1.5 text-white" />
+              </motion.div>
+            </div>
+          </div>
+        </motion.div>
+        
+        <div className="text-right">
+          <motion.div 
+            className="text-lg font-black bg-gradient-to-r from-indigo-700 via-purple-700 to-pink-700 bg-clip-text text-transparent tracking-tight"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.7 }}
+          >
+            ResumeGen
+          </motion.div>
+          <motion.div 
+            className="text-xs font-semibold text-gray-700 tracking-wide uppercase"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+          >
+            AI Resume Builder
+          </motion.div>
+          <motion.div 
+            className="inline-flex items-center gap-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-2 py-0.5 rounded-full mt-1"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.9, type: "spring", stiffness: 400 }}
+          >
+            <Shield className="w-2.5 h-2.5" />
+            PRO
+          </motion.div>
+        </div>
+      </motion.div>
 
       {/* Enhanced Back to Home Button with micro-animations */}
       <motion.button 
@@ -387,313 +434,129 @@ export default function Home() {
         <span className="hidden sm:block">Back to Home</span>
       </motion.button>
 
-      {/* Enhanced Header with more sophisticated animations */}
-      <motion.header 
-        className="relative z-40 bg-white/80 backdrop-blur-2xl border-b border-white/20 shadow-xl"
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      >
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-8">
-          <motion.div 
-            className="flex flex-col items-center space-y-6"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            {/* Enhanced Logo Section with particles */}
-            <motion.div 
-              className="flex items-center space-x-4"
-              variants={itemVariants}
-            >
-              <div className="relative group">
-                <motion.div 
-                  className="absolute inset-0 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl blur-lg opacity-50"
-                  animate={{
-                    scale: [1, 1.1, 1],
-                    opacity: [0.5, 0.8, 0.5]
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                />
-                <motion.div 
-                  className="relative w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl"
-                  whileHover={{ 
-                    scale: 1.1,
-                    rotate: 5
-                  }}
-                  transition={{ type: "spring", stiffness: 400 }}
-                >
-                  <FileText className="w-8 h-8 text-white" />
-                  <motion.div 
-                    className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center"
-                    animate={{
-                      scale: [1, 1.2, 1],
-                      rotate: [0, 180, 360]
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    <Sparkles className="w-2 h-2 text-white" />
-                  </motion.div>
-                </motion.div>
-              </div>
-              <motion.div 
-                className="text-center"
-                variants={itemVariants}
-              >
-                <motion.h1 
-                  className="text-4xl lg:text-5xl font-black bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-800 bg-clip-text text-transparent"
-                  initial={{ scale: 0.8 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
-                  ResumeGen
-                </motion.h1>
-                <motion.div 
-                  className="flex items-center justify-center gap-2 mt-2"
-                  variants={itemVariants}
-                >
-                  <motion.div
-                    animate={{ rotate: [0, 360] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                  >
-                    <Shield className="w-4 h-4 text-emerald-500" />
-                  </motion.div>
-                  <p className="text-gray-600 font-semibold text-sm">Enterprise AI Resume Builder</p>
-                  <motion.div
-                    animate={{ 
-                      scale: [1, 1.2, 1],
-                      rotate: [0, 15, -15, 0]
-                    }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
-                    <Zap className="w-4 h-4 text-yellow-500" />
-                  </motion.div>
-                </motion.div>
-              </motion.div>
-            </motion.div>
-
-            {/* Enhanced Progress indicator with interactive elements */}
-            <motion.div 
-              className="bg-white/60 backdrop-blur-xl rounded-2xl px-8 py-4 border border-white/30 shadow-xl"
-              variants={itemVariants}
-              whileHover={{ scale: 1.02 }}
-            >
-              <div className="flex items-center gap-3">
-                <div className="text-sm font-semibold text-gray-600">Progress:</div>
-                <div className="flex items-center gap-2">
-                  <div className="w-32 bg-gray-200 rounded-full h-2 overflow-hidden relative">
-                    <motion.div 
-                      className="h-full bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full relative"
-                      style={{ width: progressWidth }}
-                      initial={{ width: 0 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    >
-                      <motion.div
-                        className="absolute right-0 top-0 w-full h-full bg-white/30 rounded-full"
-                        animate={{
-                          x: ['-100%', '100%']
-                        }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                          ease: "linear"
-                        }}
-                      />
-                    </motion.div>
-                  </div>
-                  <motion.span 
-                    className="text-sm font-bold text-indigo-600 min-w-[3rem]"
-                    key={currentStep}
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ type: "spring", stiffness: 400 }}
-                  >
-                    {Math.round(((currentStep + 1) / steps.length) * 100)}%
-                  </motion.span>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        </div>
-      </motion.header>
-
-      {/* Enhanced Horizontal Progress Bar with more interactions */}
+      {/* Enhanced Horizontal Progress Bar - Complete UI with all icons visible */}
       <motion.div 
-        className="relative z-30 bg-white/40 backdrop-blur-xl border-b border-white/20 py-8 shadow-lg"
+        className="relative z-30 bg-white/70 backdrop-blur-xl border-b border-white/30 py-4 shadow-lg"
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.3 }}
       >
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+        <div className="max-w-7xl mx-auto px-8">
           <div className="flex items-center justify-between">
-            {steps.map((step, index) => {
-              const Icon = step.icon;
-              const isActive = index === currentStep;
-              const isCompleted = index < currentStep;
-              
-              return (
-                <div key={step.id} className="flex items-center relative">
-                  <motion.div
-                    className={`relative flex flex-col items-center cursor-pointer group transition-all duration-300 ${
-                      index <= currentStep ? 'opacity-100' : 'opacity-40'
-                    }`}
-                    onClick={() => jumpToStep(index)}
-                    whileHover={{ scale: 1.05, y: -5 }}
-                    whileTap={{ scale: 0.95 }}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: index <= currentStep ? 1 : 0.4, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    {/* Enhanced Step Circle */}
-                    <div className="relative">
-                      {(isActive || isCompleted) && (
-                        <motion.div 
-                          className={`absolute inset-0 bg-gradient-to-r ${step.color} rounded-full blur-lg opacity-50`}
-                          animate={{ 
-                            scale: [1, 1.2, 1],
-                            opacity: [0.3, 0.7, 0.3]
-                          }}
-                          transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                          }}
-                        />
-                      )}
-                      <motion.div 
-                        className={`relative w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 border-4 ${
-                          isActive
-                            ? `bg-gradient-to-br ${step.color} border-white text-white shadow-2xl`
-                            : isCompleted
-                            ? 'bg-gradient-to-br from-emerald-500 to-green-600 border-white text-white shadow-xl'
-                            : 'bg-white/90 border-gray-200 text-gray-400 group-hover:border-gray-300 shadow-lg'
-                        }`}
-                        whileHover={{
-                          rotate: isActive ? 0 : 5,
-                          scale: 1.1
-                        }}
-                        animate={isActive ? {
-                          boxShadow: [
-                            "0 0 20px rgba(99, 102, 241, 0.3)",
-                            "0 0 40px rgba(99, 102, 241, 0.5)",
-                            "0 0 20px rgba(99, 102, 241, 0.3)"
-                          ]
-                        } : {}}
-                        transition={{
-                          boxShadow: { duration: 2, repeat: Infinity }
-                        }}
-                      >
-                        <motion.div
-                          animate={isActive ? { rotate: [0, 5, -5, 0] } : {}}
-                          transition={{ duration: 2, repeat: Infinity }}
-                        >
-                          <Icon className="w-6 h-6" />
-                        </motion.div>
-                        {isCompleted && !isActive && (
-                          <motion.div 
-                            className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-emerald-400 to-green-500 rounded-full flex items-center justify-center"
-                            initial={{ scale: 0, rotate: -180 }}
-                            animate={{ scale: 1, rotate: 0 }}
-                            transition={{ type: "spring", stiffness: 400 }}
-                          >
-                            <motion.svg 
-                              className="w-3 h-3 text-white" 
-                              fill="currentColor" 
-                              viewBox="0 0 20 20"
-                              initial={{ pathLength: 0 }}
-                              animate={{ pathLength: 1 }}
-                              transition={{ duration: 0.5, delay: 0.2 }}
-                            >
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </motion.svg>
-                          </motion.div>
-                        )}
-                      </motion.div>
-                    </div>
-                    
-                    {/* Enhanced Step Info */}
-                    <motion.div 
-                      className="mt-3 text-center max-w-[120px]"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: index * 0.1 + 0.3 }}
-                    >
-                      <motion.div 
-                        className={`text-sm font-bold transition-colors ${
-                          isActive ? 'text-indigo-700' : isCompleted ? 'text-emerald-700' : 'text-gray-500'
-                        }`}
-                        animate={isActive ? { 
-                          color: ["#3730a3", "#7c3aed", "#3730a3"]
-                        } : {}}
-                        transition={{ duration: 2, repeat: Infinity }}
-                      >
-                        {step.title}
-                      </motion.div>
-                      <div className={`text-xs mt-1 transition-colors ${
-                        isActive ? 'text-indigo-600' : isCompleted ? 'text-emerald-600' : 'text-gray-400'
-                      }`}>
-                        {step.description}
-                      </div>
-                    </motion.div>
-
-                    {/* Hover tooltip */}
+            {/* Complete Progress Steps - All Icons Visible */}
+            <div className="flex items-center justify-center flex-1">
+              {steps.map((step, index) => {
+                const Icon = step.icon;
+                const isActive = index === currentStep;
+                const isCompleted = index < currentStep;
+                
+                return (
+                  <div key={step.id} className="flex items-center">
                     <motion.div
-                      className="absolute -top-16 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-3 py-1 rounded-lg text-xs whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50"
-                      initial={{ y: 10, opacity: 0 }}
-                      whileHover={{ y: 0, opacity: 1 }}
+                      className={`relative flex flex-col items-center cursor-pointer group transition-all duration-300 ${
+                        index <= currentStep ? 'opacity-100' : 'opacity-50'
+                      }`}
+                      onClick={() => jumpToStep(index)}
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: index <= currentStep ? 1 : 0.5, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
                     >
-                      Click to jump to this step
-                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
-                    </motion.div>
-                  </motion.div>
-                  
-                  {/* Enhanced Connection Line with flowing animation */}
-                  {index < steps.length - 1 && (
-                    <div className="flex-1 h-1 mx-4 relative">
-                      <div className="absolute inset-0 bg-gray-200 rounded-full"></div>
-                      <motion.div 
-                        className={`absolute inset-0 rounded-full overflow-hidden ${
-                          index < currentStep 
-                            ? 'bg-gradient-to-r from-emerald-400 to-green-500' 
-                            : 'bg-gray-200'
-                        }`}
-                        initial={{ scaleX: 0 }}
-                        animate={{ scaleX: index < currentStep ? 1 : 0 }}
-                        transition={{ duration: 0.5, ease: "easeInOut" }}
-                        style={{ transformOrigin: 'left' }}
-                      >
-                        {index < currentStep && (
-                          <motion.div
-                            className="w-full h-full bg-white/30"
-                            animate={{
-                              x: ['-100%', '100%']
+                      {/* Step Circle - Consistent Size */}
+                      <div className="relative">
+                        {(isActive || isCompleted) && (
+                          <motion.div 
+                            className={`absolute inset-0 bg-gradient-to-r ${step.color} rounded-full blur-lg opacity-40`}
+                            animate={{ 
+                              scale: [1, 1.2, 1],
+                              opacity: [0.2, 0.4, 0.2]
                             }}
                             transition={{
                               duration: 2,
                               repeat: Infinity,
-                              ease: "linear"
+                              ease: "easeInOut"
                             }}
                           />
                         )}
+                        <motion.div 
+                          className={`relative w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 border-3 ${
+                            isActive
+                              ? `bg-gradient-to-br ${step.color} border-white text-white shadow-2xl`
+                              : isCompleted
+                              ? 'bg-gradient-to-br from-emerald-500 to-green-600 border-white text-white shadow-xl'
+                              : 'bg-white border-gray-300 text-gray-500 group-hover:border-gray-400 shadow-lg'
+                          }`}
+                          whileHover={{
+                            scale: 1.1,
+                            boxShadow: "0 10px 30px rgba(0,0,0,0.2)"
+                          }}
+                        >
+                          <Icon className="w-7 h-7" />
+                          {isCompleted && !isActive && (
+                            <motion.div 
+                              className="absolute -top-2 -right-2 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center border-2 border-white shadow-lg"
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ type: "spring", stiffness: 400 }}
+                            >
+                              <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </motion.div>
+                          )}
+                        </motion.div>
+                      </div>
+                      
+                      {/* Step Text */}
+                      <motion.div 
+                        className="mt-3 text-center w-28"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: index * 0.1 + 0.3 }}
+                      >
+                        <div 
+                          className={`text-sm font-bold transition-colors leading-tight ${
+                            isActive 
+                              ? 'text-indigo-900' 
+                              : isCompleted 
+                              ? 'text-emerald-800' 
+                              : 'text-gray-600'
+                          }`}
+                        >
+                          {step.title}
+                        </div>
                       </motion.div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                    </motion.div>
+                    
+                    {/* Connection Line Between Steps */}
+                    {index < steps.length - 1 && (
+                      <div className="flex-1 flex items-center justify-center mx-6">
+                        <div className="relative w-24 h-1">
+                          <div className="absolute inset-0 bg-gray-300 rounded-full"></div>
+                          <motion.div 
+                            className={`absolute inset-0 rounded-full ${
+                              index < currentStep 
+                                ? 'bg-gradient-to-r from-emerald-500 to-green-600' 
+                                : 'bg-gray-300'
+                            }`}
+                            initial={{ scaleX: 0 }}
+                            animate={{ scaleX: index < currentStep ? 1 : 0 }}
+                            transition={{ duration: 0.8, ease: "easeInOut" }}
+                            style={{ transformOrigin: 'left' }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </motion.div>
 
-      {/* Main Content Area with enhanced animations */}
+      {/* Main Content Area - Fixed spacing */}
       {steps[currentStep].id === 'preview' ? (
         // Full screen preview for final step
         <motion.div 
@@ -743,37 +606,17 @@ export default function Home() {
           </AnimatePresence>
         </motion.div>
       ) : (
-        // Enhanced Split view with better animations
-        <div className="relative z-20 flex h-[calc(100vh-280px)] w-full">
-          {/* Left side - Form (60%) */}
+        // Enhanced Split view with proper spacing
+        <div className="relative z-20 flex h-[calc(100vh-150px)] w-full mt-4">
+          {/* Left side - Form (65%) */}
           <motion.div 
-            className="w-[60%] flex flex-col"
+            className="w-[65%] flex flex-col"
             initial={{ x: -100, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.5, type: "spring", stiffness: 300 }}
           >
-            <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
               <div className="w-full max-w-none">
-                <motion.div 
-                  className="mb-8"
-                  variants={containerVariants}
-                  initial="hidden"
-                  animate="visible"
-                >
-                  <motion.h2 
-                    className="text-4xl lg:text-5xl font-black mb-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-800 bg-clip-text text-transparent"
-                    variants={itemVariants}
-                  >
-                    {steps[currentStep].title}
-                  </motion.h2>
-                  <motion.p 
-                    className="text-gray-600 text-xl font-medium leading-relaxed"
-                    variants={itemVariants}
-                  >
-                    {steps[currentStep].description}
-                  </motion.p>
-                </motion.div>
-
                 <AnimatePresence mode="wait" custom={direction}>
                   <motion.div
                     key={currentStep}
@@ -795,61 +638,37 @@ export default function Home() {
             </div>
           </motion.div>
 
-          {/* Enhanced Right side - Live Preview (40%) */}
+          {/* Right side - Live Preview (35%) - Fixed spacing and centered title */}
           <motion.div 
-            className="w-[40%] bg-gradient-to-br from-gray-50/90 to-gray-100/90 backdrop-blur-xl border-l-2 border-indigo-200 shadow-2xl"
+            className="w-[35%] bg-gradient-to-br from-gray-50/95 to-gray-100/95 backdrop-blur-xl border-l border-gray-200/50 shadow-xl"
             initial={{ x: 100, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.7, type: "spring", stiffness: 300 }}
           >
-            <div className="h-full flex flex-col">
-              {/* Enhanced Preview Header with live progress connection */}
+            <div className="h-full flex flex-col overflow-hidden">
+              {/* Fixed Preview Header - Centered title */}
               <motion.div 
-                className="p-6 bg-white/90 backdrop-blur-xl border-b border-white/30 shadow-lg"
-                whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.95)" }}
+                className="flex-shrink-0 p-4 bg-white/95 backdrop-blur-xl border-b border-gray-200/50 shadow-sm"
+                whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.98)" }}
               >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <motion.div 
-                      className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg"
-                      animate={{
-                        rotate: [0, 5, -5, 0],
-                        scale: [1, 1.05, 1]
-                      }}
-                      transition={{
-                        duration: 3,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
-                    >
-                      <FileText className="w-5 h-5 text-white" />
-                    </motion.div>
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-800">Live Preview</h3>
-                      <p className="text-gray-600 text-sm font-medium">Real-time resume builder</p>
+                {/* Centered Live Preview Title */}
+                <div className="text-center mb-4">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
+                      <FileText className="w-4 h-4 text-white" />
                     </div>
+                    <h3 className="text-lg font-bold text-gray-800">Live Preview</h3>
                   </div>
-                  <motion.div 
-                    className="flex items-center gap-2 bg-gradient-to-r from-emerald-100 to-green-100 px-3 py-1 rounded-full border border-emerald-200"
-                    animate={{
-                      boxShadow: [
-                        "0 0 0 0 rgba(34, 197, 94, 0.3)",
-                        "0 0 0 4px rgba(34, 197, 94, 0.1)",
-                        "0 0 0 0 rgba(34, 197, 94, 0.3)"
-                      ]
-                    }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
-                    <motion.div 
-                      className="w-2 h-2 bg-emerald-500 rounded-full"
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ duration: 1, repeat: Infinity }}
-                    />
+                  <p className="text-gray-600 text-xs font-medium">Real-time updates</p>
+                  
+                  {/* Live indicator */}
+                  <div className="flex items-center justify-center gap-1 mt-2">
+                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
                     <span className="text-emerald-700 text-xs font-semibold">Live</span>
-                  </motion.div>
+                  </div>
                 </div>
                 
-                {/* Enhanced Progress indicator with step connection */}
+                {/* Compact Progress indicator */}
                 <motion.div 
                   className="space-y-2"
                   initial={{ opacity: 0 }}
@@ -857,79 +676,40 @@ export default function Home() {
                   transition={{ delay: 1 }}
                 >
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-semibold text-gray-700">Completion</span>
+                    <span className="text-xs font-semibold text-gray-700">Progress</span>
                     <motion.span 
-                      className="text-sm font-bold text-indigo-600"
+                      className="text-xs font-bold text-indigo-600"
                       key={currentStep}
-                      initial={{ scale: 1.2, color: "#7c3aed" }}
-                      animate={{ scale: 1, color: "#3730a3" }}
+                      initial={{ scale: 1.1 }}
+                      animate={{ scale: 1 }}
                       transition={{ type: "spring", stiffness: 400 }}
                     >
                       {Math.round(((currentStep + 1) / steps.length) * 100)}%
                     </motion.span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner relative">
+                  <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden shadow-inner relative">
                     <motion.div 
-                      className="bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 h-full rounded-full shadow-lg relative overflow-hidden"
+                      className="bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 h-full rounded-full shadow-sm"
                       style={{ width: progressWidth }}
                       transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    >
-                      <motion.div
-                        className="absolute inset-0 bg-white/20"
-                        animate={{
-                          x: ['-100%', '100%']
-                        }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                          ease: "linear"
-                        }}
-                      />
-                    </motion.div>
-                    <motion.div
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2"
-                      animate={{
-                        opacity: [0.5, 1, 0.5]
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity
-                      }}
-                    >
-                      <TrendingUp className="w-3 h-3 text-white" />
-                    </motion.div>
+                    />
                   </div>
-                  <motion.p 
-                    className="text-xs text-gray-500 mt-2"
-                    animate={{
-                      color: steps[currentStep].accent === 'blue' ? '#3b82f6' : 
-                             steps[currentStep].accent === 'purple' ? '#8b5cf6' :
-                             steps[currentStep].accent === 'green' ? '#10b981' : '#6b7280'
-                    }}
-                  >
+                  <p className="text-xs text-gray-500 text-center">
                     Step {currentStep + 1} of {steps.length} • {steps[currentStep].title}
-                  </motion.p>
+                  </p>
                 </motion.div>
               </motion.div>
               
-              {/* Enhanced Preview Content with step-based highlighting */}
+              {/* Fixed Preview Content - Static white colors only */}
               <motion.div 
-                className="flex-1 overflow-y-auto p-6 custom-scrollbar"
+                className="flex-1 overflow-y-auto p-4 custom-scrollbar"
                 key={`preview-${currentStep}`}
-                initial={{ opacity: 0.8, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3 }}
+                initial={{ opacity: 0.9 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.2 }}
               >
                 <motion.div 
-                  className={`bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-white/50 p-8 min-h-full transition-all duration-500 bg-gradient-to-br ${steps[currentStep].bgColor}`}
-                  animate={{
-                    borderColor: currentStep === 0 ? '#3b82f6' :
-                                currentStep === 1 ? '#8b5cf6' :
-                                currentStep === 2 ? '#10b981' :
-                                currentStep === 3 ? '#f97316' :
-                                currentStep === 4 ? '#6366f1' : '#14b8a6'
-                  }}
-                  transition={{ duration: 0.5 }}
+                  className="bg-white/98 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 p-4 min-h-[calc(100vh-360px)]"
                 >
                   <LivePreviewComponent data={formData} />
                 </motion.div>
