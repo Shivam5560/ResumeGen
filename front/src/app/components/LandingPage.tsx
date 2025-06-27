@@ -12,8 +12,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCreateResume }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [activeTemplate, setActiveTemplate] = useState(0);
-  const [downloadCount, setDownloadCount] = useState(0);
-  const [isLoadingStats, setIsLoadingStats] = useState(true);
+  const [resumeCount, setResumeCount] = useState(0);
 
   useEffect(() => {
     setIsLoaded(true);
@@ -30,23 +29,34 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCreateResume }) => {
   }, []);
 
   useEffect(() => {
-    const fetchDownloadStats = async () => {
-      try {
-        const response = await fetch('/api/download-stats');
-        if (response.ok) {
-          const data = await response.json();
-          setDownloadCount(data.downloadCount || 0);
-        }
-      } catch (error) {
-        console.error('Failed to fetch download stats:', error);
-        setDownloadCount(1250);
-      } finally {
-        setIsLoadingStats(false);
-      }
-    };
-
-    fetchDownloadStats();
+    // Load resume count from localStorage only
+    const savedCount = localStorage.getItem('resumeCreatedCount');
+    if (savedCount) {
+      setResumeCount(parseInt(savedCount, 10));
+    }
   }, []);
+
+  const incrementResumeCount = () => {
+    const newCount = resumeCount + 1;
+    setResumeCount(newCount);
+    localStorage.setItem('resumeCreatedCount', newCount.toString());
+  };
+
+  const handlePdfPreview = (previewUrl: string) => {
+    // Increment resume count for PDF download
+    incrementResumeCount();
+    
+    // Open PDF in new tab
+    window.open(previewUrl, '_blank', 'noopener noreferrer');
+  };
+
+  const handleLatexDownload = (sourceUrl: string) => {
+    // Increment resume count for LaTeX download
+    incrementResumeCount();
+    
+    // Open LaTeX source in new tab
+    window.open(sourceUrl, '_blank', 'noopener noreferrer');
+  };
 
   const formatCount = (count: number): string => {
     if (count >= 1000000) {
@@ -168,10 +178,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCreateResume }) => {
               >
                 <motion.h3 
                   className="text-4xl font-bold text-indigo-600 mb-2"
-                  animate={isLoadingStats ? { opacity: [0.5, 1, 0.5] } : { opacity: 1 }}
-                  transition={isLoadingStats ? { duration: 1.5, repeat: Infinity } : {}}
+                  initial={{ scale: 0.8 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.1, type: "spring", stiffness: 300 }}
                 >
-                  {isLoadingStats ? "..." : `${formatCount(downloadCount)}+`}
+                  {resumeCount}+
                 </motion.h3>
                 <p className="text-gray-600 font-semibold">Resumes Created</p>
                 <motion.div
@@ -285,22 +296,18 @@ const LandingPage: React.FC<LandingPageProps> = ({ onCreateResume }) => {
                   />
                   <div className="template-overlay">
                     <div className="template-actions">
-                      <a 
-                        href={template.preview} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
+                      <button 
+                        onClick={() => handlePdfPreview(template.preview)}
                         className="template-btn preview-btn"
                       >
                         👁️ Preview PDF
-                      </a>
-                      <a 
-                        href={template.source} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
+                      </button>
+                      <button 
+                        onClick={() => handleLatexDownload(template.source)}
                         className="template-btn source-btn"
                       >
                         📄 View LaTeX Source
-                      </a>
+                      </button>
                     </div>
                   </div>
                 </div>
