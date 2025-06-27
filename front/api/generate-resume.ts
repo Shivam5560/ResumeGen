@@ -1,20 +1,44 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextApiRequest, NextApiResponse } from 'next';
 
 // Configure function timeout for Vercel
-export const maxDuration = 30;
-export const runtime = 'nodejs';
+export const config = {
+  maxDuration: 30,
+  runtime: 'nodejs',
+};
 
-export async function POST(request: NextRequest) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Handle CORS
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  if (req.method === 'GET') {
+    return res.status(200).json({ 
+      message: 'Resume generation API is running',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV,
+      backendUrl: process.env.BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'https://resumegen-780f.onrender.com'
+    });
+  }
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
   console.log('API route called - generate-resume');
   
   try {
-    const { data, format = 'pdf' } = await request.json();
+    const { data, format = 'pdf' } = req.body;
 
     console.log('Received request:', { format, dataKeys: Object.keys(data || {}) });
 
     if (!data) {
       console.error('No data provided');
-      return NextResponse.json({ error: 'No data provided' }, { status: 400 });
+      return res.status(400).json({ error: 'No data provided' });
     }
 
     // Transform data to match backend expectations
@@ -82,12 +106,12 @@ export async function POST(request: NextRequest) {
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Backend error:', response.status, errorText);
-        return NextResponse.json({ 
+        return res.status(response.status).json({ 
           error: `Backend error: ${response.status}`,
           details: errorText,
           backendUrl: backendUrl,
           timestamp: new Date().toISOString()
-        }, { status: response.status });
+        });
       }
 
       // Check content type
@@ -99,23 +123,20 @@ export async function POST(request: NextRequest) {
         const pdfBuffer = await response.arrayBuffer();
         console.log('PDF buffer size:', pdfBuffer.byteLength);
         
-        return new NextResponse(pdfBuffer, {
-          headers: {
-            'Content-Type': 'application/pdf',
-            'Content-Disposition': 'attachment; filename=resume.pdf',
-            'Content-Length': pdfBuffer.byteLength.toString(),
-          },
-        });
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename=resume.pdf');
+        res.setHeader('Content-Length', pdfBuffer.byteLength.toString());
+        
+        return res.send(Buffer.from(pdfBuffer));
       } else {
         // For other formats, return as text
         const content = await response.text();
         console.log('Text response length:', content.length);
-        return new NextResponse(content, {
-          headers: {
-            'Content-Type': 'text/plain',
-            'Content-Disposition': 'attachment; filename=resume.tex',
-          },
-        });
+        
+        res.setHeader('Content-Type', 'text/plain');
+        res.setHeader('Content-Disposition', 'attachment; filename=resume.tex');
+        
+        return res.send(content);
       }
 
     } catch (fetchError) {
@@ -123,11 +144,11 @@ export async function POST(request: NextRequest) {
       console.error('Fetch error:', fetchError);
       
       if (fetchError instanceof Error && fetchError.name === 'AbortError') {
-        return NextResponse.json({ 
+        return res.status(408).json({ 
           error: 'Request timeout',
           details: 'Backend request took too long to respond',
           backendUrl: backendUrl
-        }, { status: 408 });
+        });
       }
       
       throw fetchError;
@@ -135,21 +156,11 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('API route error:', error);
-    return NextResponse.json({ 
+    return res.status(500).json({ 
       error: 'Internal server error',
       details: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString(),
       stack: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : undefined) : undefined
-    }, { status: 500 });
+    });
   }
-}
-
-// Add GET method to test if route is accessible
-export async function GET() {
-  return NextResponse.json({ 
-    message: 'Resume generation API is running',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV,
-    backendUrl: process.env.BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'https://resumegen-780f.onrender.com'
-  });
 }
