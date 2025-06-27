@@ -136,8 +136,10 @@ export default function PreviewStep({ data, onPrev, transformedData }: PreviewSt
           headers: {
             'Content-Type': 'application/json',
           },
+          body: JSON.stringify({ format, success: true }),
         });
       } catch (trackError) {
+        console.log('Failed to track download stats:', trackError);
       }
       
     } catch (error) {

@@ -22,8 +22,8 @@ interface Experience {
 interface ExperienceFormProps {
   data: Experience[];
   onUpdate: (data: Experience[]) => void;
-  onNext: () => void;
-  onPrev: () => void;
+  onNext: (stepData: Experience[]) => void;
+  onPrev: (stepData: Experience[]) => void;
 }
 
 export default function ExperienceForm({ data, onUpdate, onNext, onPrev }: ExperienceFormProps) {
@@ -250,7 +250,7 @@ export default function ExperienceForm({ data, onUpdate, onNext, onPrev }: Exper
 
       <div className="flex justify-between items-center mt-8 pt-6 border-t border-gray-200/50">
         <button
-          onClick={onPrev}
+          onClick={() => onPrev(experienceList)}
           className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
         >
           <ArrowLeft className="w-5 h-5" />
@@ -258,7 +258,7 @@ export default function ExperienceForm({ data, onUpdate, onNext, onPrev }: Exper
         </button>
         
         <button
-          onClick={onNext}
+          onClick={() => onNext(experienceList)}
           disabled={!isFormValid}
           className={`px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl transition-all duration-300 flex items-center gap-2 ${
             isFormValid 

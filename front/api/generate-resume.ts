@@ -46,8 +46,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       name: data.personal?.name || '',
       email: data.personal?.email || '',
       location: data.personal?.location || '',
-      linkedin_url: data.personal?.linkedin || '',
-      github_url: data.personal?.github || '',
+      linkedin_url: data.personal?.linkedin_url || '',
+      github_url: data.personal?.github_url || '',
       experiences: (data.experience || []).map((exp: Record<string, any>) => ({
         title: exp.title || '',
         company: exp.company || '',
@@ -58,7 +58,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       education: (data.education || []).map((edu: Record<string, any>) => ({
         institution: edu.institution || '',
         degree: edu.degree || '',
-        graduation_date: edu.graduationDate || '',
+        graduation_date: edu.graduation_date || '',
         gpa: edu.gpa || ''
       })),
       projects: (data.projects || []).map((proj: Record<string, any>) => ({

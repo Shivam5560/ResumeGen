@@ -12,19 +12,19 @@ import {
 
 interface SkillsFormProps {
   data: Record<string, any>;
-  onDataChange: (data: Record<string, any>) => void;
-  onNext: () => void;
-  onPrev: () => void;
+  onUpdate: (data: Record<string, any>) => void;
+  onNext: (stepData: Record<string, any>) => void;
+  onPrev: (stepData: Record<string, any>) => void;
 }
 
-export default function SkillsForm({ data, onDataChange, onNext, onPrev }: SkillsFormProps) {
+export default function SkillsForm({ data, onUpdate, onNext, onPrev }: SkillsFormProps) {
   const [newCategory, setNewCategory] = useState('');
 
   const addCategory = () => {
     if (newCategory.trim()) {
       const categoryKey = newCategory.toLowerCase().replace(/\s+/g, '_');
       const updatedSkills = { ...data, [categoryKey]: '' };
-      onDataChange(updatedSkills);
+      onUpdate(updatedSkills);
       setNewCategory('');
     }
   };
@@ -32,13 +32,13 @@ export default function SkillsForm({ data, onDataChange, onNext, onPrev }: Skill
   const updateCategorySkills = (categoryKey: string, skillsString: string) => {
     const skillsToSend = typeof skillsString === 'string' ? skillsString : String(skillsString || '');
     const updatedSkills = { ...data, [categoryKey]: skillsToSend };
-    onDataChange(updatedSkills);
+    onUpdate(updatedSkills);
   };
 
   const removeCategory = (categoryKey: string) => {
     const updatedSkills = { ...data };
     delete updatedSkills[categoryKey];
-    onDataChange(updatedSkills);
+    onUpdate(updatedSkills);
   };
 
   const categoryDisplayName = (key: string) => {
@@ -120,7 +120,7 @@ export default function SkillsForm({ data, onDataChange, onNext, onPrev }: Skill
 
       <div className="flex justify-between items-center mt-8 pt-6 border-t border-gray-200/50">
         <button
-          onClick={onPrev}
+          onClick={() => onPrev(skillsData)}
           className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
         >
           <ArrowLeft className="w-5 h-5" />
@@ -128,7 +128,7 @@ export default function SkillsForm({ data, onDataChange, onNext, onPrev }: Skill
         </button>
         
         <button
-          onClick={onNext}
+          onClick={() => onNext(skillsData)}
           className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl transition-all duration-300 flex items-center gap-2 hover:from-indigo-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105"
         >
           Preview Resume
