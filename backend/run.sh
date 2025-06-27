@@ -6,6 +6,12 @@ echo "Starting ResumeGen backend setup and execution..."
 cd "$(dirname "$0")"
 
 echo "Step 1: Running install script..."
+# Check if we're running as root or if sudo is not available
+if [[ $EUID -eq 0 ]] || ! command -v sudo &> /dev/null; then
+    echo "Detected root access or no sudo available - setting ROOT_ENVIRONMENT"
+    export ROOT_ENVIRONMENT=true
+fi
+
 # Execute the install script from the parent scripts directory
 bash ../scripts/install-latex-packages.sh
 
