@@ -2,7 +2,9 @@ FROM paperist/texlive-ja:latest
 
 # Install Python 3.11
 RUN apt-get update && apt-get install -y \
-    python3.11 
+    python3.11 \
+    python3.11-pip \
+    python3.11-venv 
 
 # Create symlinks for python and pip
 RUN ln -s /usr/bin/python3.11 /usr/bin/python && \
