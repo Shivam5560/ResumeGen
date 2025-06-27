@@ -1,13 +1,11 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
+import { Inter } from 'next/font/google'
 
-const inter = Inter({ subsets: ['latin'] })
-
-export const metadata: Metadata = {
-  title: 'ResumeGen - AI-Powered Resume Builder',
-  description: 'Create professional ATS-friendly resumes in minutes with our AI-powered platform',
-}
+const inter = Inter({ 
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700', '800'],
+  display: 'swap',
+})
 
 export default function RootLayout({
   children,
