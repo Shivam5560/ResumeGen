@@ -1,15 +1,16 @@
-FROM python:3.11-slim
+FROM paperist/texlive-ja:latest
 
-# Install system dependencies including LaTeX
+# Install Python 3.11
 RUN apt-get update && apt-get install -y \
-    texlive-latex-base \
-    texlive-latex-recommended \
-    texlive-latex-extra \
-    texlive-fonts-recommended \
-    texlive-fonts-extra \
+    python3.11 \
+    python3.11-pip \
+    python3.11-venv \
     && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
+# Create symlinks for python and pip
+RUN ln -s /usr/bin/python3.11 /usr/bin/python && \
+    ln -s /usr/bin/pip3.11 /usr/bin/pip
+
 WORKDIR /app
 
 # Copy requirements and install Python dependencies
@@ -23,4 +24,4 @@ COPY . .
 EXPOSE 8000
 
 # Start the application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
