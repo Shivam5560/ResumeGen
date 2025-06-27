@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence, useSpring, useTransform } from "framer-motion";
 import { 
   User, 
@@ -126,6 +126,19 @@ const slideVariants = {
     opacity: 0,
     scale: 0.8
   })
+};
+
+// Add this function to test API connectivity
+const testApiConnection = async () => {
+  try {
+    const response = await fetch('/api/health');
+    const result = await response.json();
+    console.log('API Health Check:', result);
+    return result;
+  } catch (error) {
+    console.error('API connection test failed:', error);
+    return null;
+  }
 };
 
 export default function Home() {
@@ -290,6 +303,11 @@ export default function Home() {
         return null;
     }
   };
+
+  useEffect(() => {
+    // Test API connection on page load
+    testApiConnection();
+  }, []);
 
   if (!showForm) {
     return <LandingPage onCreateResume={handleCreateResume} />;

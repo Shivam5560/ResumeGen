@@ -5,40 +5,33 @@ export const maxDuration = 30;
 
 export async function POST(request: NextRequest) {
   try {
-    const { data, format }: { data: Record<string, any>; format: string } = await request.json();
-    
-    console.log('Frontend data received:', JSON.stringify(data, null, 2));
-    
-    const validateData = (data: Record<string, any>): { isValid: boolean; error?: string } => {
-      return { isValid: true };
-    };
+    const { data, format = 'pdf' } = await request.json();
 
-    const validationResult = validateData(data);
-    if (!validationResult.isValid) {
-      return NextResponse.json({ error: validationResult.error || 'Invalid data' }, { status: 400 });
+    console.log('Received request:', { format, dataKeys: Object.keys(data || {}) });
+
+    if (!data) {
+      return NextResponse.json({ error: 'No data provided' }, { status: 400 });
     }
 
+    // Transform data to match backend expectations
     const backendData = {
-      name: data.personal?.name || data.name || '',
-      email: data.personal?.email || data.email || '',
-      location: data.personal?.location || data.location || '',
-      linkedin_url: data.personal?.linkedin || data.linkedin_url || data.linkedin || '',
-      github_url: data.personal?.github || data.github_url || data.github || '',
-      experiences: (data.experience || data.experiences || []).map((exp: Record<string, any>) => ({
-        title: exp.title || exp.position || '',
-        company: exp.company || exp.organization || '',
+      name: data.personal?.name || '',
+      email: data.personal?.email || '',
+      location: data.personal?.location || '',
+      linkedin_url: data.personal?.linkedin || '',
+      github_url: data.personal?.github || '',
+      experiences: (data.experience || []).map((exp: Record<string, any>) => ({
+        title: exp.title || '',
+        company: exp.company || '',
         location: exp.location || '',
-        dates: exp.duration || exp.dates || exp.period || '',
-        responsibilities: Array.isArray(exp.responsibilities) ? exp.responsibilities : 
-                         exp.responsibilities ? [exp.responsibilities] : 
-                         Array.isArray(exp.description) ? exp.description : 
-                         exp.description ? [exp.description] : []
+        dates: exp.dates || '',
+        responsibilities: Array.isArray(exp.responsibilities) ? exp.responsibilities : []
       })),
       education: (data.education || []).map((edu: Record<string, any>) => ({
-        institution: edu.school || edu.institution || edu.university || '',
-        degree: edu.degree || edu.program || '',
-        graduation_date: edu.graduationDate || edu.graduation_date || edu.date || '',
-        gpa: edu.gpa || edu.cgpa || ''
+        institution: edu.institution || '',
+        degree: edu.degree || '',
+        graduation_date: edu.graduationDate || '',
+        gpa: edu.gpa || ''
       })),
       projects: (data.projects || []).map((proj: Record<string, any>) => ({
         title: proj.name || proj.title || '',
@@ -51,8 +44,8 @@ export async function POST(request: NextRequest) {
 
     console.log('Backend data transformed:', JSON.stringify(backendData, null, 2));
 
-    // Fixed backend URL handling
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
+    // Use environment variable for backend URL with fallback
+    const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'https://resumegen-780f.onrender.com';
     
     console.log('Making request to:', `${backendUrl}/generate-resume`);
     
@@ -61,15 +54,13 @@ export async function POST(request: NextRequest) {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/pdf, application/json',
-        'User-Agent': 'NextJS-API-Route',
-        'Origin': 'https://resume-gen-iota.vercel.app',
       },
       body: JSON.stringify(backendData),
-      signal: AbortSignal.timeout(25000), // 25 seconds
+      // Add timeout for Vercel
+      signal: AbortSignal.timeout(25000) // 25 seconds
     });
 
     console.log('Backend response status:', response.status);
-    console.log('Backend response headers:', Object.fromEntries(response.headers.entries()));
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -103,11 +94,11 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('Error in generate-resume API:', error);
+    console.error('API route error:', error);
     return NextResponse.json({ 
       error: 'Internal server error',
       details: error instanceof Error ? error.message : 'Unknown error',
-      backendUrl: process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+      timestamp: new Date().toISOString()
     }, { status: 500 });
   }
 }
