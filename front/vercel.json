@@ -13,8 +13,8 @@
       "destination": "https://resumegen-780f.onrender.com/api/$1"
     },
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "source": "/backend-api/(.*)",
+      "destination": "https://resumegen-780f.onrender.com/$1"
     }
   ],
   "headers": [
