@@ -76,7 +76,7 @@ if [[ -z "$RAILWAY_ENVIRONMENT" ]] && [[ -z "$ROOT_ENVIRONMENT" ]]; then
     echo "Installing LaTeX packages..."
     for package in "${PACKAGES[@]}"; do
         echo "Installing $package..."
-        sudo tlmgr install "$package" || echo "Warning: Could not install $package"
+        tlmgr install "$package" || echo "Warning: Could not install $package"
     done
 fi
 
