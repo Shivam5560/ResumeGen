@@ -9,31 +9,8 @@
   },
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "https://resumegen-780f.onrender.com/api/$1"
-    },
-    {
       "source": "/backend-api/(.*)",
       "destination": "https://resumegen-780f.onrender.com/$1"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET, POST, PUT, DELETE, OPTIONS"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "Content-Type, Authorization"
-        }
-      ]
     }
   ]
 }
