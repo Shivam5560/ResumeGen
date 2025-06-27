@@ -1,9 +1,0 @@
-{
-  "version": 2,
-  "buildCommand": "npm run build",
-  "installCommand": "npm ci",
-  "outputDirectory": "dist",
-  "env": {
-    "NODE_ENV": "production"
-  }
-}

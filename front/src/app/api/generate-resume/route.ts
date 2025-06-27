@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     console.log('Backend data transformed:', JSON.stringify(backendData, null, 2));
 
     // Fixed backend URL handling
-    const backendUrl = process.env.BACKEND_URL || 'https://localhost:8000';
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
     
     console.log('Making request to:', `${backendUrl}/generate-resume`);
     
@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
         'Accept': 'application/pdf, application/json',
         'User-Agent': 'NextJS-API-Route',
+        'Origin': 'https://resume-gen-iota.vercel.app',
       },
       body: JSON.stringify(backendData),
       signal: AbortSignal.timeout(25000), // 25 seconds
@@ -106,7 +107,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ 
       error: 'Internal server error',
       details: error instanceof Error ? error.message : 'Unknown error',
-      backendUrl: process.env.NEXT_PUBLIC_BACKEND_URL || 'https://localhost:8000'
+      backendUrl: process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
     }, { status: 500 });
   }
 }
