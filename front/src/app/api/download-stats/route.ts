@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 
+// Configure function timeout for Vercel
+export const maxDuration = 10;
+
 // In a real application, you would use a database
 // For now, we'll use a simple file-based storage or environment variable
 // You should replace this with your actual database implementation

@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Configure function timeout for Vercel
+export const maxDuration = 30;
+
 export async function POST(request: NextRequest) {
   try {
     const { data, format }: { data: Record<string, any>; format: string } = await request.json();

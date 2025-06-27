@@ -4,10 +4,5 @@
   "installCommand": "npm ci",
   "env": {
     "NODE_ENV": "production"
-  },
-  "functions": {
-    "src/app/api/**/*.ts": {
-      "maxDuration": 30
-    }
   }
 }
