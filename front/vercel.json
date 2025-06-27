@@ -4,13 +4,6 @@
   "installCommand": "npm ci",
   "outputDirectory": "dist",
   "env": {
-    "NODE_ENV": "production",
-    "BACKEND_URL": "https://resumegen-780f.onrender.com"
-  },
-  "rewrites": [
-    {
-      "source": "/backend-api/(.*)",
-      "destination": "https://resumegen-780f.onrender.com/$1"
-    }
-  ]
+    "NODE_ENV": "production"
+  }
 }

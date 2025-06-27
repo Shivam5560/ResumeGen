@@ -51,19 +51,33 @@ export async function POST(request: NextRequest) {
 
     console.log('Backend data transformed:', JSON.stringify(backendData, null, 2));
 
-    // Make API call to FastAPI backend
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
+    // Fixed backend URL handling
+    const backendUrl = process.env.BACKEND_URL || 'https://localhost:8000';
+    
+    console.log('Making request to:', `${backendUrl}/generate-resume`);
+    
     const response = await fetch(`${backendUrl}/generate-resume`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/pdf, application/json',
+        'User-Agent': 'NextJS-API-Route',
       },
       body: JSON.stringify(backendData),
+      signal: AbortSignal.timeout(25000), // 25 seconds
     });
 
+    console.log('Backend response status:', response.status);
+    console.log('Backend response headers:', Object.fromEntries(response.headers.entries()));
+
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
-      return NextResponse.json({ error: errorData.detail || 'Backend error' }, { status: response.status });
+      const errorText = await response.text();
+      console.error('Backend error:', response.status, errorText);
+      return NextResponse.json({ 
+        error: `Backend error: ${response.status}`,
+        details: errorText,
+        backendUrl: backendUrl
+      }, { status: response.status });
     }
 
     // If it's a PDF, return the file stream
@@ -89,6 +103,10 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Error in generate-resume API:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error',
+      backendUrl: process.env.NEXT_PUBLIC_BACKEND_URL || 'https://localhost:8000'
+    }, { status: 500 });
   }
 }
