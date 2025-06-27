@@ -17,7 +17,7 @@ origins = [
     "http://localhost:3000",  # Local development
     "http://localhost:5173",  # Vite dev server
     "https://*.vercel.app",   # All Vercel deployments
-    "https://resumegen-alpha.vercel.app",  # Replace with your actual Vercel URL
+    "https://resume-gen-iota.vercel.app/",  # Replace with your actual Vercel URL
 ]
 
 # If Railway environment, allow all origins (more permissive for deployment)
