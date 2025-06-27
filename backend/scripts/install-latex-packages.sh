@@ -1,5 +1,5 @@
 #!/bin/bash
-
+echo "Starting LaTeX installation script..."
 echo "Installing LaTeX and required packages..."
 
 # Detect Railway environment or root environment

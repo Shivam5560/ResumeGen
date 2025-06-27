@@ -1,5 +1,4 @@
 #!/bin/bash
-chmod +x /backend/scripts/install-latex-packages.sh
 echo "Starting ResumeGen backend setup and execution..."
 
 # Make sure we're in the backend directory
@@ -13,7 +12,7 @@ if [[ $EUID -eq 0 ]] || ! command -v sudo &> /dev/null; then
 fi
 
 # Execute the install script from the parent scripts directory
-bash ../scripts/install-latex-packages.sh
+bash scripts/install-latex-packages.sh
 
 if [ $? -eq 0 ]; then
     echo "✓ Install script completed successfully"
